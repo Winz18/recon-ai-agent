@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.project
+.pydevproject
+/.Python
+/build/
+/develop-eggs/
+/dist/
+/downloads/
+/eggs/
+/.eggs/
+/lib/
+/lib64/
+/parts/
+/sdist/
+/var/
+/wheels/
+*.egg
+MANIFEST
+
+# Virtual environment
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak
+venv.bak
+
+# IDEs
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Config secrets
+*.json # Cẩn thận nếu chứa key, tốt nhất để key trong .env hoặc Secret Manager
+config/OAI_CONFIG_LIST # Nếu bạn dùng file này để chứa key
+
+# Notebooks checkpoints
+.ipynb_checkpoints
+
+# Logs
+logs/
+*.log

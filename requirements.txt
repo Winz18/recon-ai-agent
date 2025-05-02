@@ -1,0 +1,10 @@
+# Core AG2 and Vertex AI
+ag2
+ag2[gemini]
+google-cloud-aiplatform
+python-dotenv
+dnspython
+python-whois
+requests
+beautifulsoup4
+google-api-python-client
