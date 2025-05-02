@@ -55,3 +55,6 @@ config/OAI_CONFIG_LIST # Nếu bạn dùng file này để chứa key
 # Logs
 logs/
 *.log
+
+# Cache
+.cache
