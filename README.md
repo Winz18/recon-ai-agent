@@ -1,28 +1,30 @@
-# Pentest AG2 Tool - Footprinting & Reconnaissance
+# AI Pentesting Assistant - Footprinting & Reconnaissance
 
-Công cụ hỗ trợ Pentester trong giai đoạn Footprinting và Reconnaissance sử dụng AI Agent (AG2 Framework) và triển khai trên Google Cloud Vertex AI.
+Công cụ hỗ trợ Pentester trong giai đoạn Footprinting và Reconnaissance sử dụng AI Agent (AutoGen Framework) và triển khai trên Google Cloud Vertex AI.
 
 ## Tính năng hiện có
 
 * **Thu thập thông tin DNS**: Tra cứu các bản ghi A, AAAA, MX, NS, TXT của tên miền
 * **Tra cứu thông tin WHOIS**: Lấy thông tin đăng ký tên miền
-* **AI Agent tự động**: Khả năng lập kế hoạch và thực hiện reconnaissance đơn giản bằng AG2 Framework
+* **Quét cổng cơ bản**: Kiểm tra các cổng thông dụng đang mở trên máy chủ đích
+* **AI Agent tự động**: Khả năng lập kế hoạch và thực hiện reconnaissance tự động bằng AutoGen Framework
+* **Tổng hợp báo cáo**: Tạo báo cáo tổng hợp về các phát hiện bảo mật
 
 ## Công nghệ sử dụng
 
 * **Python:** Ngôn ngữ lập trình chính
-* **AG2 Framework:** Framework xây dựng và điều phối AI Agent (autogen)
+* **AutoGen Framework:** Framework xây dựng và điều phối AI Agent
 * **Google Cloud Vertex AI:** Nền tảng để chạy và quản lý AI Agent
     * Vertex AI SDK for Python 
-    * Gemini Models (đang sử dụng gemini-2.5-pro-preview-03-25)
-* **Các thư viện Python khác:** `dnspython`, `python-whois`, `requests`, `python-dotenv`
+    * Gemini Models
+* **Các thư viện Python khác:** `dnspython`, `python-whois`, `requests`, `python-nmap`, `python-dotenv`
 
 ## Cài đặt
 
 1.  **Clone repository:**
     ```bash
-    git clone <your-repo-url>
-    cd lab-ai-agent
+    git clone https://github.com/yourusername/ai-pentesting-assistant.git
+    cd ai-pentesting-assistant
     ```
 
 2.  **Tạo và kích hoạt môi trường ảo:**
@@ -46,19 +48,26 @@ Công cụ hỗ trợ Pentester trong giai đoạn Footprinting và Reconnaissan
 
 ## Sử dụng
 
-* **Chạy quy trình reconnaissance cơ bản:**
+* **Chạy quy trình reconnaissance tự động:**
     ```bash
-    python main.py
+    python main.py --domain example.com
     ```
-    Script này khởi tạo AI Agent để thực hiện phân tích DNS và WHOIS cho tên miền đã cấu hình.
+
+* **Chạy các công cụ riêng lẻ:**
+    ```bash
+    python tools/dns_lookup.py --domain example.com
+    python tools/whois_lookup.py --domain example.com
+    python tools/port_scanner.py --target 192.168.1.1
+    ```
 
 ## Cấu trúc thư mục
 
 * **agents/**: Chứa các module liên quan đến AI agent
 * **config/**: Cấu hình ứng dụng và kết nối đến Vertex AI
 * **notebooks/**: Jupyter notebooks để kiểm thử tính năng
+* **reports/**: Lưu trữ các báo cáo tự động tạo
 * **tests/**: Unit tests
-* **tools/**: Các công cụ reconnaissance (DNS, WHOIS)
+* **tools/**: Các công cụ reconnaissance (DNS, WHOIS, Port Scanner)
 * **utils/**: Tiện ích và các hàm hỗ trợ
 * **workflows/**: Các quy trình reconnaissance định sẵn
 
@@ -67,8 +76,8 @@ Công cụ hỗ trợ Pentester trong giai đoạn Footprinting và Reconnaissan
 * Liệt kê Subdomain (sử dụng các kỹ thuật passive/active)
 * Kiểm tra thông tin Header của Web Server
 * Tìm kiếm thông tin trên các công cụ tìm kiếm (Google Search, Shodan,...)
-* Quét cổng cơ bản (nếu được phép)
-* Tổng hợp và báo cáo kết quả chi tiết hơn bởi AI Agent
+* Phân tích lỗ hổng bảo mật cơ bản
+* Tạo đề xuất khắc phục thông qua AI
 
 ## Lưu ý về Bảo mật và Pháp lý
 
