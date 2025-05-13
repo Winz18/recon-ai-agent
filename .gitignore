@@ -58,3 +58,4 @@ logs/
 
 # Cache
 .cache
+.cache/42/cache.db
