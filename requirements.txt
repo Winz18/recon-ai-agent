@@ -3,8 +3,24 @@ ag2
 ag2[gemini]
 google-cloud-aiplatform
 python-dotenv
+
+# Network and Web Tools
 dnspython
 python-whois
 requests
 beautifulsoup4
 google-api-python-client
+googlesearch-python
+
+# Port Scanner
+# No additional requirements (uses built-in socket)
+
+# Technology Detection
+# (beautifulsoup4 already included)
+
+# Screenshot capture (optional, install based on preference)
+selenium
+playwright
+
+# Google Dorking
+# (google-api-python-client already included)

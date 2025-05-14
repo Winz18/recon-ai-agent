@@ -81,19 +81,31 @@ def get_http_headers(
 
 @recon_tool
 def extract_security_headers(
-    headers: Annotated[Dict[str, str], "HTTP headers dictionary"],
+    url: Annotated[str, "The URL to fetch HTTP headers from"],
     include_recommendations: Annotated[bool, "Include security recommendations"] = True
 ) -> Dict[str, Dict[str, str]]:
     """
-    Analyzes security headers from HTTP response.
-    
+    Fetches HTTP headers from a URL and analyzes security headers.
+
     Args:
-        headers: Dictionary of HTTP headers
-        include_recommendations: Whether to include security recommendations in the output
-        
+        url: The URL to fetch HTTP headers from.
+        include_recommendations: Whether to include security recommendations in the output.
+
     Returns:
-        Dictionary with security analysis results
+        Dictionary with security analysis results.
     """
+    # Ensure URL has a scheme
+    if not url.startswith(('http://', 'https://')):
+        url = f'https://{url}'
+
+    try:
+        # Fetch headers using a HEAD request
+        response = requests.head(url, timeout=10, allow_redirects=True)
+        headers = {k.lower(): v for k, v in response.headers.items()}
+    except requests.RequestException as e:
+        return {"error": f"Failed to fetch headers: {str(e)}"}
+
+    # Analyze headers
     security_headers = {
         "analysis": {
             "missing_headers": [],
@@ -102,10 +114,10 @@ def extract_security_headers(
             "max_score": 0
         }
     }
-    
+
     if include_recommendations:
         security_headers["recommendations"] = {}
-    
+
     # List of important security headers to check with their weights and recommendations
     important_headers = [
         {
@@ -160,37 +172,17 @@ def extract_security_headers(
         }
     ]
     
-    # Calculate max possible score
-    security_headers["analysis"]["max_score"] = sum(h["weight"] for h in important_headers)
-    
-    for header_info in important_headers:
-        header_name = header_info["name"]
-        header_weight = header_info["weight"]
-        
-        if header_name in headers:
-            security_headers["analysis"]["found_headers"][header_name] = headers[header_name]
-            security_headers["analysis"]["score"] += header_weight
+    # Analyze headers
+    for header in important_headers:
+        name = header["name"].lower()
+        if name in headers:
+            security_headers["analysis"]["found_headers"][name] = headers[name]
+            security_headers["analysis"]["score"] += header["weight"]
         else:
-            security_headers["analysis"]["missing_headers"].append(header_name)
-            
-            # Add recommendation if requested
+            security_headers["analysis"]["missing_headers"].append(name)
             if include_recommendations:
-                security_headers["recommendations"][header_name] = header_info["recommendation"]
-    
-    # Calculate score percentage
-    if security_headers["analysis"]["max_score"] > 0:
-        security_headers["analysis"]["score_percentage"] = round(
-            (security_headers["analysis"]["score"] / security_headers["analysis"]["max_score"]) * 100, 1
-        )
-    
-    # Add security rating based on score percentage
-    if "score_percentage" in security_headers["analysis"]:
-        score = security_headers["analysis"]["score_percentage"]
-        if score >= 80:
-            security_headers["analysis"]["rating"] = "Good"
-        elif score >= 50:
-            security_headers["analysis"]["rating"] = "Moderate"
-        else:
-            security_headers["analysis"]["rating"] = "Poor"
-    
+                security_headers["recommendations"][name] = header["recommendation"]
+
+    security_headers["analysis"]["max_score"] = sum(h["weight"] for h in important_headers)
+
     return security_headers
