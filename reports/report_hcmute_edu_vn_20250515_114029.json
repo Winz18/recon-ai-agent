@@ -1,0 +1,380 @@
+{
+  "report_title": "Security Reconnaissance Report",
+  "target_domain": "hcmute.edu.vn",
+  "report_date": "2025-05-15",
+  "scan_timestamp": "2025-05-15T04:38:09Z",
+  "executive_summary": {
+    "overview": "Reconnaissance of hcmute.edu.vn revealed a web server running Microsoft-IIS/10.0 and ASP.NET. Key security concerns include multiple missing critical HTTP security headers (HSTS, CSP, X-Frame-Options), information disclosure through server banners, a session cookie lacking the 'Secure' attribute, and a large number of identified subdomains (52) significantly expanding the potential attack surface. WHOIS information retrieval failed, hindering domain ownership verification. DKIM is partially configured for email security.",
+    "risk_level": "High",
+    "key_findings_count": {
+      "critical": 0,
+      "high": 3,
+      "medium": 4,
+      "low": 1
+    }
+  },
+  "methodology": {
+    "description": "The reconnaissance was performed by analyzing provided DNS records (A, MX, NS, TXT), HTTP headers from the main domain, and a list of enumerated subdomains. WHOIS data retrieval was unsuccessful. The automated security header extraction tool encountered an error; analysis of security headers was performed manually based on raw HTTP headers and security best practices.",
+    "tools_used": [
+      "DNS Query Analyzer",
+      "HTTP Header Inspector",
+      "Subdomain Enumeration Data Analyzer",
+      "WHOIS Lookup Tool (failed)",
+      "Security Header Analyzer (tool error)"
+    ]
+  },
+  "findings": {
+    "infrastructure": {
+      "description": "The domain hcmute.edu.vn resolves to the IP address 203.113.147.181. DNS services are managed by ns99.vdc2.vn and ns100.vdc2.vn. Mail exchange (MX) records point to Google Workspace, indicating its use for email services. TXT records show domain verification for Microsoft services (MS=E065CFE5551FBB30029060D9B4F5EEA558334D59) and implementation of DKIM (v=DKIM1) for email authentication. Another TXT record (hq1GZz0iWDpnuRq6LYbuPOutiYDekGRADQ95C2U05xE=) likely serves for another form of domain verification.",
+      "ip_addresses": [
+        "203.113.147.181"
+      ],
+      "hosting_details": {
+        "primary_ip": "203.113.147.181",
+        "name_servers": [
+          "ns100.vdc2.vn.",
+          "ns99.vdc2.vn."
+        ],
+        "mail_servers": [
+          "10 aspmx.l.google.com.",
+          "10 aspmx2.aspmx.googlemail.com.",
+          "20 alt1.aspmx.l.google.com.",
+          "20 alt2.aspmx.l.google.com.",
+          "30 aspmx2.googlemail.com.",
+          "30 aspmx3.googlemail.com.",
+          "30 aspmx4.googlemail.com.",
+          "30 aspmx5.googlemail.com."
+        ]
+      },
+      "security_implications": [
+        "Single IP for the main domain could be a single point of failure if not adequately protected by upstream infrastructure (e.g., CDN, load balancer).",
+        "Reliance on Google Workspace for email is common; however, its security depends on proper configuration (MFA, phishing protection, etc.).",
+        "DKIM is present, which is good for email security, but SPF and DMARC records should also be checked for comprehensive protection."
+      ],
+      "risk_level": "Low"
+    },
+    "domain_registration": {
+      "description": "WHOIS information retrieval for hcmute.edu.vn failed with the error: 'Socket not responding: [Errno 11001] getaddrinfo failed'. This prevents analysis of domain registration date, expiry date, registrar details, and privacy protection status.",
+      "registration_date": "Unavailable",
+      "expiry_date": "Unavailable",
+      "registrar": "Unavailable",
+      "privacy_protection": null,
+      "security_implications": [
+        "Inability to verify domain ownership details or identify potential phishing indicators related to domain age or registrar.",
+        "Hinders the ability to contact domain administrators for security incidents or notifications.",
+        "May indicate issues with the WHOIS service for the .vn TLD or network connectivity problems during the lookup."
+      ],
+      "risk_level": "Low"
+    },
+    "subdomains": {
+      "count": 52,
+      "details": [
+        "admin.hcmute.edu.vn",
+        "api.hcmute.edu.vn",
+        "app.hcmute.edu.vn",
+        "apps.hcmute.edu.vn",
+        "auth.hcmute.edu.vn",
+        "autoconfig.hcmute.edu.vn",
+        "autodiscover.hcmute.edu.vn",
+        "blog.hcmute.edu.vn",
+        "cdn.hcmute.edu.vn",
+        "cloud.hcmute.edu.vn",
+        "connect.hcmute.edu.vn",
+        "cp.hcmute.edu.vn",
+        "cpanel.hcmute.edu.vn",
+        "dashboard.hcmute.edu.vn",
+        "dev.hcmute.edu.vn",
+        "direct-connect.hcmute.edu.vn",
+        "direct.hcmute.edu.vn",
+        "dns.hcmute.edu.vn",
+        "docs.hcmute.edu.vn",
+        "download.hcmute.edu.vn",
+        "downloads.hcmute.edu.vn",
+        "email.hcmute.edu.vn",
+        "events.hcmute.edu.vn",
+        "ftp.hcmute.edu.vn",
+        "gitlab.hcmute.edu.vn",
+        "images.hcmute.edu.vn",
+        "img.hcmute.edu.vn",
+        "intranet.hcmute.edu.vn",
+        "login.hcmute.edu.vn",
+        "m.hcmute.edu.vn",
+        "mail.hcmute.edu.vn",
+        "media.hcmute.edu.vn",
+        "mobile.hcmute.edu.vn",
+        "ns1.hcmute.edu.vn",
+        "ns2.hcmute.edu.vn",
+        "portal.hcmute.edu.vn",
+        "remote.hcmute.edu.vn",
+        "secure.hcmute.edu.vn",
+        "server.hcmute.edu.vn",
+        "shop.hcmute.edu.vn",
+        "smtp.hcmute.edu.vn",
+        "staging.hcmute.edu.vn",
+        "status.hcmute.edu.vn",
+        "support.hcmute.edu.vn",
+        "test.hcmute.edu.vn",
+        "video.hcmute.edu.vn",
+        "vpn.hcmute.edu.vn",
+        "wap.hcmute.edu.vn",
+        "web.hcmute.edu.vn",
+        "webmail.hcmute.edu.vn",
+        "ws.hcmute.edu.vn",
+        "www.hcmute.edu.vn"
+      ],
+      "security_implications": [
+        "A large number of subdomains significantly increases the potential attack surface.",
+        "Subdomains like 'admin', 'api', 'auth', 'cpanel', 'dev', 'ftp', 'gitlab', 'login', 'remote', 'staging', 'test', 'vpn' are often high-value targets and may have varying security postures.",
+        "Risk of forgotten or unmaintained subdomains with outdated software or misconfigurations."
+      ],
+      "risk_level": "Medium"
+    },
+    "web_server": {
+      "description": "The web server for hcmute.edu.vn identifies itself as Microsoft-IIS/10.0 and indicates it is powered by ASP.NET version 4.0.30319. This level of detail in server headers constitutes information disclosure.",
+      "server_type": "Microsoft-IIS/10.0",
+      "technologies": [
+        "ASP.NET 4.0.30319"
+      ],
+      "security_implications": [
+        "Disclosure of server type (Microsoft-IIS/10.0) and specific framework versions (X-AspNet-Version: 4.0.30319, X-Powered-By: ASP.NET) can aid attackers in identifying potential exploits tailored to these technologies.",
+        "Older versions of ASP.NET or IIS, if not fully patched, might be susceptible to known vulnerabilities."
+      ],
+      "risk_level": "Medium"
+    },
+    "security_headers": {
+      "description": "Automated security header extraction failed due to a tool error: 'dict' object has no attribute 'startswith'. The following analysis is based on manual inspection of the provided HTTP headers for hcmute.edu.vn and standard security best practices. Several important security headers are missing.",
+      "present_headers": {
+        "Cache-Control": "private",
+        "Content-Type": "text/html; charset=utf-8",
+        "Set-Cookie": "ASP.NET_SessionId=s03ecccg0it45nk4xkm2nwqj; path=/; HttpOnly; SameSite=Lax"
+      },
+      "missing_headers": [
+        "Strict-Transport-Security (HSTS)",
+        "Content-Security-Policy (CSP)",
+        "X-Frame-Options",
+        "X-Content-Type-Options",
+        "Referrer-Policy",
+        "Permissions-Policy"
+      ],
+      "header_issues": [
+        {
+          "issue": "Session cookie 'ASP.NET_SessionId' missing 'Secure' attribute",
+          "details": "The session cookie is set with HttpOnly and SameSite=Lax, but lacks the 'Secure' attribute. This could allow the cookie to be transmitted over unencrypted HTTP if any part of the site links to HTTP resources or during an SSL stripping attack (especially in the absence of HSTS)."
+        },
+        {
+          "issue": "Automated security header tool error",
+          "details": "The tool reported: 'dict' object has no attribute 'startswith'. This prevented a comprehensive automated check."
+        }
+      ],
+      "security_implications": [
+        "Missing HSTS: Vulnerable to SSL stripping attacks, forcing users over HTTP.",
+        "Missing CSP: Increased risk of Cross-Site Scripting (XSS) attacks being successful and more impactful.",
+        "Missing X-Frame-Options: Vulnerable to clickjacking attacks, where the site can be framed by malicious pages.",
+        "Missing X-Content-Type-Options: Potential for MIME-sniffing attacks, which can lead to XSS if the browser misinterprets content types.",
+        "Missing Referrer-Policy: Potential leakage of sensitive URL parameters via the Referer header to third-party sites.",
+        "Missing Permissions-Policy: Unrestricted access to browser features, potentially leading to privacy or security risks if scripts are compromised.",
+        "Session cookie without 'Secure' attribute: Risk of session hijacking if transmitted over HTTP."
+      ],
+      "risk_level": "High"
+    }
+  },
+  "vulnerabilities": [
+    {
+      "id": "VULN-001",
+      "title": "Missing Strict-Transport-Security (HSTS) Header",
+      "description": "The HTTP Strict-Transport-Security header is not implemented. This makes the website vulnerable to man-in-the-middle attacks such as SSL stripping, where an attacker can force the connection over unencrypted HTTP.",
+      "affected_area": "Web Application (hcmute.edu.vn)",
+      "severity": "High",
+      "evidence": "HSTS header not present in HTTP response for https://hcmute.edu.vn/",
+      "cwe_id": "CWE-319",
+      "remediation": "Implement the HSTS header (e.g., `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`). Start with a short max-age, test thoroughly, and then gradually increase it. Consider preloading if appropriate."
+    },
+    {
+      "id": "VULN-002",
+      "title": "Missing Content-Security-Policy (CSP) Header",
+      "description": "The Content-Security-Policy header is not set. This significantly increases the risk and potential impact of Cross-Site Scripting (XSS) attacks, as there are no browser-enforced restrictions on where content (scripts, styles, images, etc.) can be loaded from.",
+      "affected_area": "Web Application (hcmute.edu.vn)",
+      "severity": "High",
+      "evidence": "CSP header not present in HTTP response for https://hcmute.edu.vn/",
+      "cwe_id": "CWE-693",
+      "remediation": "Implement a robust Content-Security-Policy to define and whitelist trusted sources for various types of content. Start with a reporting policy (`Content-Security-Policy-Report-Only`) to identify necessary directives before enforcing them."
+    },
+    {
+      "id": "VULN-003",
+      "title": "Missing X-Frame-Options Header",
+      "description": "The X-Frame-Options header is not implemented, making the application vulnerable to clickjacking attacks. An attacker could embed the site in an iframe on a malicious page to trick users into performing unintended actions.",
+      "affected_area": "Web Application (hcmute.edu.vn)",
+      "severity": "High",
+      "evidence": "X-Frame-Options header not present in HTTP response for https://hcmute.edu.vn/",
+      "cwe_id": "CWE-1021",
+      "remediation": "Implement the X-Frame-Options header with `DENY` or `SAMEORIGIN` directive. Alternatively, use the `frame-ancestors` directive within Content-Security-Policy for more fine-grained control."
+    },
+    {
+      "id": "VULN-004",
+      "title": "Missing X-Content-Type-Options Header",
+      "description": "The X-Content-Type-Options header is not set to `nosniff`. This could allow browsers to perform MIME-sniffing on the response content, potentially misinterpreting file types, which can lead to security issues like XSS if an attacker can upload a file that is then misinterpreted as HTML/JavaScript by the browser.",
+      "affected_area": "Web Application (hcmute.edu.vn)",
+      "severity": "Medium",
+      "evidence": "X-Content-Type-Options header not present in HTTP response for https://hcmute.edu.vn/",
+      "cwe_id": "CWE-693",
+      "remediation": "Implement the X-Content-Type-Options header with the value `nosniff` to prevent browsers from MIME-sniffing."
+    },
+    {
+      "id": "VULN-005",
+      "title": "Information Disclosure via Server Headers",
+      "description": "The web server exposes detailed version information through HTTP headers: `Server: Microsoft-IIS/10.0`, `X-AspNet-Version: 4.0.30319`, and `X-Powered-By: ASP.NET`. This information can assist attackers in identifying targeted exploits for these specific software versions.",
+      "affected_area": "Web Server Configuration",
+      "severity": "Medium",
+      "evidence": "HTTP headers: `Server: Microsoft-IIS/10.0`, `X-AspNet-Version: 4.0.30319`, `X-Powered-By: ASP.NET`",
+      "cwe_id": "CWE-200",
+      "remediation": "Configure the web server (Microsoft-IIS) to remove or minimize these verbose headers. For example, use URL Rewrite module or other IIS configurations to modify outgoing response headers."
+    },
+    {
+      "id": "VULN-006",
+      "title": "Session Cookie Missing 'Secure' Attribute",
+      "description": "The `ASP.NET_SessionId` cookie is set with `HttpOnly` and `SameSite=Lax` attributes but lacks the `Secure` attribute. This means the cookie could be transmitted over an unencrypted HTTP channel if the user is redirected or clicks a link to an HTTP version of a page, or during an SSL stripping attack.",
+      "affected_area": "Web Application Session Management",
+      "severity": "Medium",
+      "evidence": "Set-Cookie header: `ASP.NET_SessionId=s03ecccg0it45nk4xkm2nwqj; path=/; HttpOnly; SameSite=Lax`",
+      "cwe_id": "CWE-614",
+      "remediation": "Ensure all session cookies, and any cookies transmitting sensitive information, are set with the `Secure` attribute. This can typically be configured within the web application's framework settings (e.g., in web.config for ASP.NET)."
+    },
+    {
+      "id": "VULN-007",
+      "title": "Expanded Attack Surface via Numerous Subdomains",
+      "description": "A total of 52 subdomains were identified for hcmute.edu.vn. Each subdomain represents a potential entry point. Subdomains such as 'admin', 'cpanel', 'ftp', 'gitlab', 'vpn', 'remote', 'login', 'auth' are particularly sensitive and require robust security. The large number increases the likelihood of encountering unmaintained or less secure systems.",
+      "affected_area": "Overall Domain Infrastructure",
+      "severity": "Medium",
+      "evidence": "List of 52 subdomains provided in reconnaissance data.",
+      "cwe_id": "CWE-1129",
+      "remediation": "Conduct a thorough audit of all identified subdomains. Decommission any unnecessary subdomains. Ensure all active subdomains are regularly patched, monitored, and adhere to the organization's security baseline. Implement consistent security controls (including security headers) across all web-facing subdomains."
+    },
+    {
+      "id": "VULN-008",
+      "title": "Unavailability of WHOIS Information",
+      "description": "Attempts to retrieve WHOIS information for hcmute.edu.vn failed. While not a direct vulnerability of the system itself, this hinders security research, incident response coordination, and verification of domain ownership legitimacy.",
+      "affected_area": "Domain Management & Operational Security Intelligence",
+      "severity": "Low",
+      "evidence": "WHOIS query returned: `Socket not responding: [Errno 11001] getaddrinfo failed`",
+      "cwe_id": "N/A",
+      "remediation": "Investigate the cause of the WHOIS lookup failures. Ensure that domain registration details are accurate and accessible via standard WHOIS queries, or that a privacy service is intentionally and correctly configured if privacy is desired."
+    }
+  ],
+  "correlations": [
+    {
+      "description": "The combination of a Microsoft IIS/ASP.NET server environment and the widespread absence of crucial security headers (HSTS, CSP, X-Frame-Options) suggests a default or minimally hardened configuration. This pattern often indicates that security best practices for web applications may not have been systematically applied.",
+      "related_elements": [
+        "findings.web_server",
+        "findings.security_headers",
+        "VULN-001",
+        "VULN-002",
+        "VULN-003",
+        "VULN-004",
+        "VULN-005"
+      ],
+      "security_implication": "Higher susceptibility to common web attacks due to lack of layered defenses provided by security headers. The specific technology stack might have known vulnerabilities if not patched, and disclosed versions aid attackers.",
+      "risk_level": "High"
+    },
+    {
+      "description": "The extensive list of subdomains, including many with sensitive names (e.g., 'admin', 'cpanel', 'vpn', 'auth', 'gitlab'), coupled with the security weaknesses observed on the main domain, raises concerns about inconsistent security postures across the organization's digital footprint. Forgotten, development, or staging subdomains often lack proper maintenance and can become easy targets.",
+      "related_elements": [
+        "findings.subdomains",
+        "VULN-007",
+        "all other vulnerabilities potentially replicated on subdomains"
+      ],
+      "security_implication": "Increased likelihood of finding a vulnerable entry point within the expanded attack surface. A compromise of a less secure subdomain could potentially lead to lateral movement or impact other systems.",
+      "risk_level": "High"
+    },
+    {
+      "description": "The presence of DKIM records in DNS, alongside Google MX records, indicates an effort towards email security. However, without corresponding SPF and DMARC records, email spoofing and phishing protection remains incomplete.",
+      "related_elements": [
+        "dns.MX",
+        "dns.TXT",
+        "findings.infrastructure"
+      ],
+      "security_implication": "Partial email authentication may not be sufficient to prevent sophisticated email-based attacks. Attackers could still attempt to spoof emails from the domain if SPF and DMARC are weak or missing.",
+      "risk_level": "Low"
+    }
+  ],
+  "recommendations": [
+    {
+      "id": "REC-001",
+      "title": "Implement Critical HTTP Security Headers",
+      "description": "Configure the web server to send `Strict-Transport-Security` (HSTS), `Content-Security-Policy` (CSP), `X-Frame-Options`, and `X-Content-Type-Options` headers. This will provide crucial protection against SSL stripping, Cross-Site Scripting (XSS), clickjacking, and MIME-sniffing attacks.",
+      "priority": "High",
+      "implementation_complexity": "Medium",
+      "related_vulnerabilities": [
+        "VULN-001",
+        "VULN-002",
+        "VULN-003",
+        "VULN-004"
+      ]
+    },
+    {
+      "id": "REC-002",
+      "title": "Conduct Comprehensive Subdomain Audit and Hardening",
+      "description": "Perform a thorough inventory and security assessment of all 52 identified subdomains. Decommission any that are no longer necessary. For active subdomains, ensure they are regularly patched, configured according to security best practices (including implementation of security headers), and continuously monitored. Pay special attention to subdomains with sensitive functionalities.",
+      "priority": "High",
+      "implementation_complexity": "High",
+      "related_vulnerabilities": [
+        "VULN-007"
+      ]
+    },
+    {
+      "id": "REC-003",
+      "title": "Minimize Server Information Disclosure",
+      "description": "Configure the Microsoft-IIS web server to remove or obfuscate detailed version information from the `Server`, `X-AspNet-Version`, and `X-Powered-By` HTTP headers. This reduces the information available to attackers for targeted exploitation.",
+      "priority": "Medium",
+      "implementation_complexity": "Medium",
+      "related_vulnerabilities": [
+        "VULN-005"
+      ]
+    },
+    {
+      "id": "REC-004",
+      "title": "Enforce 'Secure' Attribute for All Sensitive Cookies",
+      "description": "Modify the application configuration (e.g., web.config for ASP.NET) to ensure that all session cookies (like `ASP.NET_SessionId`) and any other cookies transmitting sensitive data are set with the `Secure` attribute. This prevents them from being transmitted over unencrypted HTTP.",
+      "priority": "Medium",
+      "implementation_complexity": "Low",
+      "related_vulnerabilities": [
+        "VULN-006"
+      ]
+    },
+    {
+      "id": "REC-005",
+      "title": "Implement Full Email Authentication (SPF, DMARC)",
+      "description": "While DKIM is present, conduct a review of email authentication mechanisms. Implement or strengthen Sender Policy Framework (SPF) and Domain-based Message Authentication, Reporting, and Conformance (DMARC) records in DNS to provide comprehensive protection against email spoofing and phishing attacks targeting the hcmute.edu.vn domain.",
+      "priority": "Medium",
+      "implementation_complexity": "Medium",
+      "related_vulnerabilities": []
+    },
+    {
+      "id": "REC-006",
+      "title": "Implement Referrer-Policy and Permissions-Policy Headers",
+      "description": "Enhance security and privacy by implementing the `Referrer-Policy` header (e.g., `strict-origin-when-cross-origin` or `no-referrer`) to control the information sent in the Referer header, and the `Permissions-Policy` header to restrict access to sensitive browser features.",
+      "priority": "Low",
+      "implementation_complexity": "Medium",
+      "related_vulnerabilities": []
+    },
+    {
+      "id": "REC-007",
+      "title": "Resolve WHOIS Lookup Issues",
+      "description": "Investigate and address the problem preventing successful WHOIS lookups for the hcmute.edu.vn domain. Ensure that administrative and technical contact information is accurate and accessible through standard WHOIS queries, unless a deliberate privacy service is in use and correctly configured.",
+      "priority": "Low",
+      "implementation_complexity": "Low",
+      "related_vulnerabilities": [
+        "VULN-008"
+      ]
+    }
+  ],
+  "next_steps": [
+    "Perform authenticated and unauthenticated vulnerability scanning on the main domain (hcmute.edu.vn) and all identified subdomains, particularly those with high-value names (admin, api, auth, cpanel, dev, ftp, gitlab, login, remote, staging, test, vpn).",
+    "Conduct manual penetration testing focusing on common web application vulnerabilities (e.g., OWASP Top 10) for key applications hosted on the domain and its subdomains.",
+    "Review the complete DNS configuration for hcmute.edu.vn, specifically checking for SPF and DMARC records and their policies to assess overall email security posture.",
+    "Map out the functionality and technology stack of each active subdomain to understand its specific risks and tailor further testing.",
+    "Investigate the source of the WHOIS lookup failure to obtain domain registration details for better contextual understanding and contact points.",
+    "Analyze client-side code (JavaScript) on the main application and critical subdomains for vulnerabilities such as DOM XSS or insecure handling of data.",
+    "Review web server (IIS) and application (ASP.NET) configurations for security best practices beyond HTTP headers, including patch levels, authentication mechanisms, and authorization controls."
+  ],
+  "raw_data_reference": "Input data provided in the prompt for the hcmute.edu.vn domain."
+}

@@ -6,6 +6,7 @@ Script để kiểm thử Reporter agent.
 import os
 import sys
 import json
+import datetime
 
 # Thêm đường dẫn gốc vào sys.path
 project_root = os.path.abspath(os.path.dirname(__file__))
@@ -23,8 +24,13 @@ from tools.search import search_subdomains
 setup_logging()
 logger = get_logger(__name__)
 
-def test_reporter(domain="example.com"):
-    """Kiểm thử Reporter agent."""
+def test_reporter(domain="example.com", output_format="markdown"):
+    """Kiểm thử Reporter agent.
+    
+    Args:
+        domain: Tên miền để tạo báo cáo (mặc định: example.com)
+        output_format: Định dạng báo cáo ("markdown", "html", "json")
+    """
     print(f"=== Kiểm thử Reporter với tên miền: {domain} ===\n")
     
     # Lấy cấu hình LLM
@@ -69,25 +75,28 @@ def test_reporter(domain="example.com"):
     
     # Yêu cầu tạo báo cáo
     print("\nĐang yêu cầu AI tạo báo cáo...\n")
-    report = reporter.generate_report(
+    report, report_path = reporter.generate_report(
         target_domain=domain, 
         collected_data=collected_data, 
-        output_format="markdown"
+        output_format=output_format,
+        save_report=True,
+        save_raw_data=True
     )
     
-    # Lưu báo cáo vào file
-    output_file = f"report_{domain.replace('.', '_')}.md"
-    with open(output_file, "w", encoding="utf-8") as f:
-        f.write(report)
-    
-    print(f"Đã lưu báo cáo vào file: {output_file}")
+    print(f"Đã lưu báo cáo vào file: {report_path}")
     
     # Tạo tóm tắt
     print("\nĐang yêu cầu AI tạo tóm tắt...\n")
-    summary = reporter.summarize_findings(collected_data=collected_data, max_length=500)
+    summary = reporter.summarize_findings(
+        collected_data=collected_data, 
+        max_length=500,
+        include_risk_assessment=True
+    )
     
     print("=== Tóm Tắt Kết Quả ===\n")
     print(summary)
+    
+    return report_path
 
 if __name__ == "__main__":
     import argparse
@@ -95,6 +104,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Kiểm thử Reporter agent")
     parser.add_argument("--domain", "-d", default="example.com", 
                        help="Tên miền để tạo báo cáo (mặc định: example.com)")
+    parser.add_argument("--format", "-f", default="markdown", choices=["markdown", "html", "json"],
+                       help="Định dạng báo cáo (mặc định: markdown)")
     
     args = parser.parse_args()
-    test_reporter(args.domain)
+    test_reporter(args.domain, args.format)

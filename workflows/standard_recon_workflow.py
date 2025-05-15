@@ -169,10 +169,21 @@ def run_standard_recon_workflow(target_domain: str, model_id: str = "gemini-2.5-
     else:
         collected_data["summaries"]["osint_gathering"] = "Failed to retrieve OSINT gathering summary"
     
-    logger.info("OSINT gathering completed")
-      # Generate the final report
+    logger.info("OSINT gathering completed")    # Generate the final report
     logger.info("Generating final reconnaissance report")
-    report = reporter.generate_report(target_domain, collected_data)
+    report, report_path = reporter.generate_report(
+        target_domain=target_domain, 
+        collected_data=collected_data,
+        output_format="markdown",
+        save_report=True,
+        save_raw_data=True
+    )
+    
+    # Print report location
+    if report_path:
+        logger.info(f"Report saved to: {report_path}")
+    
+    print(f"=== RECONNAISSANCE REPORT SUMMARY ===\nTarget: {target_domain}\n\n{report}")
     logger.info("Reconnaissance workflow completed successfully")
     
     # No need to validate tool call responses, as we're now using sequential calls

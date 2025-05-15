@@ -1,0 +1,556 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Reconnaissance Report: hcmute.edu.vn</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #0056b3;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 10px;
+        }
+        h2 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        pre {
+            background-color: #eee;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .risk-critical { color: red; font-weight: bold; }
+        .risk-high { color: orange; font-weight: bold; }
+        .risk-medium { color: #d0a000; font-weight: bold; } /* Darker Yellow for better readability */
+        .risk-low { color: green; font-weight: bold; }
+
+        .toc {
+            background: #eef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .toc ul li a {
+            text-decoration: none;
+            color: #0056b3;
+        }
+        .toc ul li a:hover {
+            text-decoration: underline;
+        }
+
+        .collapsible {
+            background-color: #f0f8ff;
+            color: #333;
+            cursor: pointer;
+            padding: 12px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 1em;
+            margin-top: 10px;
+            border-radius: 4px;
+            border: 1px solid #add8e6;
+        }
+        .collapsible:hover {
+            background-color: #e6f2ff;
+        }
+        .collapsible-content {
+            padding: 0 15px;
+            display: none;
+            overflow: hidden;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+        .collapsible.active + .collapsible-content {
+            display: block;
+        }
+        .recommendation-priority {
+            font-weight: bold;
+        }
+        .recommendation-priority.high { color: orange; }
+        .recommendation-priority.medium { color: #d0a000; }
+        .recommendation-priority.low { color: green; }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+            }
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.5em; }
+            h3 { font-size: 1.2em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Security Reconnaissance Report</h1>
+        <p><strong>Target Domain:</strong> hcmute.edu.vn</p>
+        <p><strong>Report Date:</strong> <script>document.write(new Date().toLocaleDateString());</script></p>
+        <p><strong>Reporter:</strong> Reconnaissance Reporter AI</p>
+
+        <div class="toc">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#summary">1. Executive Summary</a></li>
+                <li><a href="#methodology">2. Methodology</a></li>
+                <li><a href="#findings">3. Findings</a>
+                    <ul>
+                        <li><a href="#infra">3.1 Infrastructure Information</a></li>
+                        <li><a href="#whois">3.2 Domain Registration Analysis</a></li>
+                        <li><a href="#subdomains">3.3 Identified Subdomains</a></li>
+                        <li><a href="#webserver">3.4 Web Server Configuration</a></li>
+                        <li><a href="#headers">3.5 HTTP Security Headers Analysis</a></li>
+                        <li><a href="#dnssec">3.6 DNS Security Analysis (TXT Records)</a></li>
+                    </ul>
+                </li>
+                <li><a href="#implications">4. Security Implications & Vulnerabilities</a></li>
+                <li><a href="#recommendations">5. Recommendations</a></li>
+                <li><a href="#attack_surface">6. Attack Surface Evaluation</a></li>
+            </ul>
+        </div>
+
+        <div id="summary">
+            <h2>1. Executive Summary</h2>
+            <p>This report details the findings of a security reconnaissance assessment conducted on the domain <code>hcmute.edu.vn</code>. The assessment focused on publicly available information, including DNS records, HTTP headers, and subdomain enumeration. </p>
+            <p>Several security concerns were identified, primarily related to missing HTTP security headers, potential email spoofing vulnerabilities due to incomplete DNS security records (SPF and DMARC not explicitly found), and information disclosure from server banners. The extensive list of subdomains significantly expands the potential attack surface, requiring careful management and auditing.</p>
+            <p>The overall risk level for <code>hcmute.edu.vn</code>, based on the reconnaissance data, is assessed as <strong class="risk-high">HIGH</strong>. This is primarily due to the lack of crucial security headers and potential gaps in email security configurations, which could expose the organization and its users to various web-based attacks and phishing campaigns.</p>
+            <p>Immediate attention should be given to implementing robust HTTP security headers and verifying/implementing comprehensive email security measures (SPF, DKIM, DMARC). A thorough audit of all identified subdomains is also recommended.</p>
+        </div>
+
+        <div id="methodology">
+            <h2>2. Methodology</h2>
+            <p>The reconnaissance was performed based on provided structured data, simulating the collection phase. The analysis involved examining:</p>
+            <ul>
+                <li><strong>DNS Records:</strong> A, MX, NS, TXT records were analyzed for infrastructure details and security configurations (e.g., DKIM).</li>
+                <li><strong>WHOIS Lookup:</strong> An attempt to retrieve domain registration information was noted.</li>
+                <li><strong>HTTP Headers:</strong> Headers from the main domain were inspected for server information and security configurations.</li>
+                <li><strong>Subdomain Enumeration:</strong> A list of identified subdomains was reviewed to understand the organization's online footprint and potential attack vectors.</li>
+            </ul>
+            <p>The focus was on identifying potential vulnerabilities, misconfigurations, and areas for security posture improvement based strictly on the provided data.</p>
+        </div>
+
+        <div id="findings">
+            <h2>3. Findings</h2>
+
+            <div id="infra">
+                <h3>3.1 Infrastructure Information</h3>
+                <p>The following infrastructure details were identified for <code>hcmute.edu.vn</code>:</p>
+                <table>
+                    <tr><th>Record Type</th><th>Value(s)</th></tr>
+                    <tr>
+                        <td>A Record (IPv4 Address)</td>
+                        <td><code>203.113.147.181</code></td>
+                    </tr>
+                    <tr>
+                        <td>MX Records (Mail Exchange)</td>
+                        <td>
+                            <pre>10 aspmx.l.google.com.
+10 aspmx2.aspmx.googlemail.com.
+20 alt1.aspmx.l.google.com.
+20 alt2.aspmx.l.google.com.
+30 aspmx2.googlemail.com.
+30 aspmx3.googlemail.com.
+30 aspmx4.googlemail.com.
+30 aspmx5.googlemail.com.</pre>
+                            <em>Indicates use of Google Workspace for email services.</em>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>NS Records (Name Servers)</td>
+                        <td>
+                            <pre>ns100.vdc2.vn.
+ns99.vdc2.vn.</pre>
+                            <em>Hosted by VDC2 (Vietnam Posts and Telecommunications Group).</em>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div id="whois">
+                <h3>3.2 Domain Registration Analysis</h3>
+                <p>WHOIS data retrieval failed with the message: <code>Socket not responding: [Errno 11001] getaddrinfo failed</code>.</p>
+                <p><strong>Implications:</strong></p>
+                <ul>
+                    <li>This could be due to a temporary network issue, the WHOIS server being unavailable, or rate limiting.</li>
+                    <li>It prevents analysis of domain registration details, registrar information, and contact details, which can sometimes offer insights (e.g., domain age, recent updates).</li>
+                    <li>Many domains use privacy protection services, which would redact most useful information anyway. However, the error suggests a lookup failure rather than privacy redaction.</li>
+                </ul>
+            </div>
+
+            <div id="subdomains">
+                <h3>3.3 Identified Subdomains</h3>
+                <p>A significant number of subdomains were identified for <code>hcmute.edu.vn</code>. This expands the attack surface and requires diligent security management across all active services.</p>
+                <button type="button" class="collapsible">View Full List of Subdomains (52 identified)</button>
+                <div class="collapsible-content">
+                    <pre>
+admin.hcmute.edu.vn
+api.hcmute.edu.vn
+app.hcmute.edu.vn
+apps.hcmute.edu.vn
+auth.hcmute.edu.vn
+autoconfig.hcmute.edu.vn
+autodiscover.hcmute.edu.vn
+blog.hcmute.edu.vn
+cdn.hcmute.edu.vn
+cloud.hcmute.edu.vn
+connect.hcmute.edu.vn
+cp.hcmute.edu.vn
+cpanel.hcmute.edu.vn
+dashboard.hcmute.edu.vn
+dev.hcmute.edu.vn
+direct-connect.hcmute.edu.vn
+direct.hcmute.edu.vn
+dns.hcmute.edu.vn
+docs.hcmute.edu.vn
+download.hcmute.edu.vn
+downloads.hcmute.edu.vn
+email.hcmute.edu.vn
+events.hcmute.edu.vn
+ftp.hcmute.edu.vn
+gitlab.hcmute.edu.vn
+images.hcmute.edu.vn
+img.hcmute.edu.vn
+intranet.hcmute.edu.vn
+login.hcmute.edu.vn
+m.hcmute.edu.vn
+mail.hcmute.edu.vn
+media.hcmute.edu.vn
+mobile.hcmute.edu.vn
+ns1.hcmute.edu.vn
+ns2.hcmute.edu.vn
+portal.hcmute.edu.vn
+remote.hcmute.edu.vn
+secure.hcmute.edu.vn
+server.hcmute.edu.vn
+shop.hcmute.edu.vn
+smtp.hcmute.edu.vn
+staging.hcmute.edu.vn
+status.hcmute.edu.vn
+support.hcmute.edu.vn
+test.hcmute.edu.vn
+video.hcmute.edu.vn
+vpn.hcmute.edu.vn
+wap.hcmute.edu.vn
+web.hcmute.edu.vn
+webmail.hcmute.edu.vn
+ws.hcmute.edu.vn
+www.hcmute.edu.vn
+                    </pre>
+                </div>
+                <p><strong>Potentially Sensitive Subdomains:</strong> Several subdomains suggest critical services or development/testing environments that warrant heightened security scrutiny:</p>
+                <ul>
+                    <li><code>admin</code>, <code>auth</code>, <code>login</code>, <code>portal</code>: Authentication and administrative interfaces.</li>
+                    <li><code>api</code>, <code>ws</code>: API endpoints.</li>
+                    <li><code>cpanel</code>: Hosting control panel.</li>
+                    <li><code>dev</code>, <code>staging</code>, <code>test</code>: Development and testing environments, which may be less secure.</li>
+                    <li><code>gitlab</code>: Source code repository or CI/CD system.</li>
+                    <li><code>remote</code>, <code>vpn</code>: Remote access solutions.</li>
+                    <li><code>secure</code>: Implies a service requiring higher security.</li>
+                </ul>
+            </div>
+
+            <div id="webserver">
+                <h3>3.4 Web Server Configuration</h3>
+                <p>HTTP headers from <code>https://hcmute.edu.vn/</code> revealed the following server information:</p>
+                <table>
+                    <tr><th>Header</th><th>Value</th></tr>
+                    <tr><td><code>server</code></td><td><code>Microsoft-IIS/10.0</code></td></tr>
+                    <tr><td><code>x-aspnet-version</code></td><td><code>4.0.30319</code></td></tr>
+                    <tr><td><code>x-powered-by</code></td><td><code>ASP.NET</code></td></tr>
+                    <tr><td><code>set-cookie</code></td><td><code>ASP.NET_SessionId=yxtca42dozddctuzsygnynmn; path=/; HttpOnly; SameSite=Lax</code></td></tr>
+                    <tr><td><code>date</code></td><td><code>Thu, 15 May 2025 04:50:37 GMT</code> (Note: This date is in the future, suggesting a possible server clock misconfiguration or data collection artifact)</td></tr>
+                </table>
+                <p><strong>Analysis:</strong></p>
+                <ul>
+                    <li>The server is running Microsoft Internet Information Services (IIS) version 10.0, on an ASP.NET framework.</li>
+                    <li>The <code>ASP.NET_SessionId</code> cookie includes the <code>HttpOnly</code> flag, which helps mitigate XSS attacks by preventing client-side scripts from accessing the cookie. The <code>SameSite=Lax</code> attribute provides some protection against CSRF attacks. However, the <code>Secure</code> flag is missing.</li>
+                    <li>Disclosure of specific server software and framework versions (IIS, ASP.NET) can aid attackers in identifying potential version-specific vulnerabilities.</li>
+                </ul>
+            </div>
+
+            <div id="headers">
+                <h3>3.5 HTTP Security Headers Analysis</h3>
+                <p>The automated security header extraction tool reported an error: <code>'dict' object has no attribute 'startswith'</code>. Therefore, a manual analysis of the provided HTTP headers for <code>https://hcmute.edu.vn/</code> was performed.</p>
+                <p><strong>Observed Security-Related Headers:</strong></p>
+                <ul>
+                    <li><code>Set-Cookie: ASP.NET_SessionId=...; path=/; HttpOnly; SameSite=Lax</code>
+                        <ul>
+                            <li><strong>HttpOnly:</strong> Present. Good.</li>
+                            <li><strong>SameSite=Lax:</strong> Present. Good for most cases, provides CSRF protection.</li>
+                            <li><strong>Secure:</strong> Missing. This is a vulnerability.</li>
+                        </ul>
+                    </li>
+                </ul>
+                <p><strong>Critically Missing HTTP Security Headers:</strong></p>
+                <ul>
+                    <li><strong><code>Strict-Transport-Security (HSTS)</code>:</strong> Not present. This header enforces HTTPS connections, protecting against SSL stripping attacks.</li>
+                    <li><strong><code>Content-Security-Policy (CSP)</code>:</strong> Not present. CSP helps prevent Cross-Site Scripting (XSS), clickjacking, and other code injection attacks by specifying allowed content sources.</li>
+                    <li><strong><code>X-Frame-Options</code>:</strong> Not present. This header (or CSP <code>frame-ancestors</code>) protects against clickjacking attacks by controlling whether the site can be embedded in an <code>&lt;iframe&gt;</code>, <code>&lt;frame&gt;</code>, <code>&lt;embed&gt;</code> or <code>&lt;object&gt;</code>.</li>
+                    <li><strong><code>X-Content-Type-Options</code>:</strong> Not present. Setting this header to <code>nosniff</code> prevents browsers from MIME-sniffing the content type, reducing risk from attacks that leverage content type confusion.</li>
+                    <li><strong><code>Referrer-Policy</code>:</strong> Not present. Controls how much referrer information is sent with requests.</li>
+                    <li><strong><code>Permissions-Policy</code> (formerly Feature-Policy):</strong> Not present. Allows fine-grained control over which browser features can be used by the site.</li>
+                </ul>
+            </div>
+
+            <div id="dnssec">
+                <h3>3.6 DNS Security Analysis (TXT Records)</h3>
+                <p>The following TXT records were found:</p>
+                <pre>
+MS=E065CFE5551FBB30029060D9B4F5EEA558334D59
+p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDTXTaPkYTIcCk5R6LCRebpB7UAcgGaa91a/lvrNcfP/Ul2szy0thJPl3YsQtfXv8PB0GtZgYqR1Ezt9keE4i7SwWmOGZV/2GcxR6Ys/RDoBiXRoRI1ppBORY0Gx61x2xYnQQ4Zn+CgrGa0mtK6XLdADCLOCMhgbxKumJomaplrGwIDAQAB
+k=rsa
+hq1GZz0iWDpnuRq6LYbuPOutiYDekGRADQ95C2U05xE=
+v=DKIM1
+                </pre>
+                <p><strong>Analysis:</strong></p>
+                <ul>
+                    <li><code>MS=E065CFE5551FBB30029060D9B4F5EEA558334D59</code>: This is a domain verification record, typically for Microsoft services like Office 365.</li>
+                    <li>The records <code>v=DKIM1</code>, <code>k=rsa</code>, and <code>p=... (public key) ...</code> together constitute a <strong>DomainKeys Identified Mail (DKIM)</strong> record. This is a positive security measure, helping to verify that emails originating from <code>hcmute.edu.vn</code> are authentic and have not been tampered with.</li>
+                    <li><code>hq1GZz0iWDpnuRq6LYbuPOutiYDekGRADQ95C2U05xE=</code>: This appears to be another domain verification token, possibly for a service like Google Search Console or another third-party application.</li>
+                    <li><strong>Missing SPF Record:</strong> No explicit Sender Policy Framework (SPF) record (e.g., <code>v=spf1 ...</code>) was found in the provided TXT records. SPF records specify which mail servers are authorized to send email on behalf of the domain, preventing email spoofing.</li>
+                    <li><strong>Missing DMARC Record:</strong> No Domain-based Message Authentication, Reporting, and Conformance (DMARC) record (e.g., <code>_dmarc.hcmute.edu.vn</code>) was found. DMARC builds on SPF and DKIM to allow domain owners to specify how unauthenticated emails should be handled (none, quarantine, reject) and provides reporting capabilities.</li>
+                </ul>
+                <p><strong>Connection:</strong> The MX records indicate Google Workspace is used for email. Google strongly recommends configuring SPF, DKIM, and DMARC. While DKIM is present, the apparent absence of SPF and DMARC is a significant security gap for email integrity and phishing prevention.</p>
+            </div>
+        </div>
+
+        <div id="implications">
+            <h2>4. Security Implications & Vulnerabilities</h2>
+            <p>Based on the findings, the following security implications and vulnerabilities have been identified:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Vulnerability / Concern</th>
+                        <th>Description</th>
+                        <th>Risk Level</th>
+                        <th>Affected Component(s)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Missing HTTP Strict Transport Security (HSTS) Header</td>
+                        <td>The lack of HSTS allows for potential SSL stripping attacks, where an attacker could downgrade HTTPS connections to HTTP, exposing sensitive information.</td>
+                        <td class="risk-high">High</td>
+                        <td>Web Application (<code>https://hcmute.edu.vn/</code>)</td>
+                    </tr>
+                    <tr>
+                        <td>Missing Content Security Policy (CSP)</td>
+                        <td>Without CSP, the application is more susceptible to Cross-Site Scripting (XSS) and data injection attacks, as there are no restrictions on where content can be loaded from or executed.</td>
+                        <td class="risk-high">High</td>
+                        <td>Web Application</td>
+                    </tr>
+                    <tr>
+                        <td>Missing X-Frame-Options / CSP frame-ancestors</td>
+                        <td>The application is vulnerable to Clickjacking attacks. Attackers can embed the site in an iframe on a malicious page to trick users into performing unintended actions.</td>
+                        <td class="risk-high">High</td>
+                        <td>Web Application</td>
+                    </tr>
+                    <tr>
+                        <td>Missing SPF and DMARC Records</td>
+                        <td>The absence of SPF and DMARC records significantly increases the risk of email spoofing and phishing attacks impersonating <code>@hcmute.edu.vn</code> addresses. This can lead to reputational damage and successful phishing campaigns against students, faculty, and staff. DKIM alone is not sufficient.</td>
+                        <td class="risk-high">High</td>
+                        <td>Email System, Domain Reputation</td>
+                    </tr>
+                    <tr>
+                        <td>Information Disclosure (Server Banners)</td>
+                        <td>Exposing <code>Server: Microsoft-IIS/10.0</code>, <code>X-AspNet-Version: 4.0.30319</code>, and <code>X-Powered-By: ASP.NET</code> provides attackers with specific version information, facilitating targeted exploit attempts if vulnerabilities exist for these versions.</td>
+                        <td class="risk-medium">Medium</td>
+                        <td>Web Server Configuration</td>
+                    </tr>
+                    <tr>
+                        <td>Insecure Session Cookie (Missing 'Secure' Flag)</td>
+                        <td>The <code>ASP.NET_SessionId</code> cookie lacks the <code>Secure</code> flag. If the site ever serves any content over HTTP, or if HSTS is not implemented (which it isn't), this cookie could be transmitted in cleartext.</td>
+                        <td class="risk-medium">Medium</td>
+                        <td>Web Application Session Management</td>
+                    </tr>
+                    <tr>
+                        <td>Large Attack Surface (Numerous Subdomains)</td>
+                        <td>The large number of subdomains (52 identified) increases the complexity of security management and presents a broader attack surface. Subdomains like <code>admin</code>, <code>cpanel</code>, <code>dev</code>, <code>gitlab</code>, <code>login</code>, <code>remote</code>, <code>staging</code>, <code>test</code>, <code>vpn</code> could host sensitive services or less-secured applications.</td>
+                        <td class="risk-medium">Medium</td>
+                        <td>Overall Domain Infrastructure</td>
+                    </tr>
+                    <tr>
+                        <td>Missing X-Content-Type-Options Header</td>
+                        <td>Without <code>X-Content-Type-Options: nosniff</code>, browsers may try to MIME-sniff the content type, potentially leading to XSS if the browser misinterprets a file type (e.g., treating an uploaded text file as HTML).</td>
+                        <td class="risk-low">Low</td>
+                        <td>Web Application</td>
+                    </tr>
+                     <tr>
+                        <td>Potential Outdated Technology (.NET Framework)</td>
+                        <td><code>ASP.NET 4.0.30319</code> is part of the .NET Framework 4.x series. While .NET Framework 4.8 is the final version and still supported, it's crucial to ensure the specific installation is fully patched. Older, unpatched minor versions could harbor known vulnerabilities.</td>
+                        <td class="risk-low">Low</td>
+                        <td>Web Server Software Stack</td>
+                    </tr>
+                    <tr>
+                        <td>WHOIS Data Retrieval Failure</td>
+                        <td>Inability to retrieve WHOIS data hinders certain aspects of reconnaissance (e.g., assessing domain age, registrar security practices). While often due to privacy services, the specific error suggests a lookup problem.</td>
+                        <td class="risk-low">Low</td>
+                        <td>Domain Intelligence</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="recommendations">
+            <h2>5. Recommendations</h2>
+            <p>The following recommendations are prioritized to help improve the security posture of <code>hcmute.edu.vn</code>:</p>
+            <ol>
+                <li>
+                    <p><strong class="recommendation-priority high">[High Priority] Implement Comprehensive HTTP Security Headers:</strong></p>
+                    <ul>
+                        <li><strong><code>Strict-Transport-Security (HSTS)</code>:</strong> Enforce HTTPS across the entire domain and subdomains. Example: <code>Strict-Transport-Security: max-age=31536000; includeSubDomains; preload</code>. Start with a smaller <code>max-age</code> for testing.</li>
+                        <li><strong><code>Content-Security-Policy (CSP)</code>:</strong> Implement a robust CSP to mitigate XSS and related attacks. This requires careful planning to define allowed sources for scripts, styles, images, etc. Start with a restrictive policy and gradually loosen as needed, or use <code>Content-Security-Policy-Report-Only</code> to test.</li>
+                        <li><strong><code>X-Frame-Options</code>:</strong> Prevent clickjacking. Example: <code>X-Frame-Options: SAMEORIGIN</code> or <code>DENY</code>. Alternatively, use CSP <code>frame-ancestors 'self'</code>.</li>
+                        <li><strong><code>X-Content-Type-Options</code>:</strong> Set to <code>nosniff</code>. Example: <code>X-Content-Type-Options: nosniff</code>.</li>
+                        <li><strong><code>Referrer-Policy</code>:</strong> Control referrer information. Example: <code>Referrer-Policy: strict-origin-when-cross-origin</code> or <code>no-referrer</code>.</li>
+                        <li><strong><code>Permissions-Policy</code>:</strong> Define which browser features the site can use. Example: <code>Permissions-Policy: geolocation=(), microphone=(), camera=()</code> (disabling these if not needed).</li>
+                    </ul>
+                </li>
+                <li>
+                    <p><strong class="recommendation-priority high">[High Priority] Strengthen Email Security (SPF & DMARC):</strong></p>
+                    <ul>
+                        <li><strong>Verify/Implement SPF Record:</strong> Create and publish an SPF TXT record that lists all authorized mail servers for <code>hcmute.edu.vn</code>. Given Google Workspace usage, this typically includes <code>_spf.google.com</code>. Example: <code>v=spf1 include:_spf.google.com ~all</code> (start with <code>~all</code> (softfail) and move to <code>-all</code> (hardfail) after monitoring).</li>
+                        <li><strong>Implement DMARC Record:</strong> Publish a DMARC TXT record for <code>_dmarc.hcmute.edu.vn</code>. Start with a monitoring policy (<code>p=none</code>) and gradually move to <code>p=quarantine</code> and then <code>p=reject</code>. Example: <code>v=DMARC1; p=none; rua=mailto:dmarc-reports@hcmute.edu.vn; ruf=mailto:dmarc-forensic@hcmute.edu.vn; fo=1;</code> (adjust email addresses for reporting).</li>
+                    </ul>
+                </li>
+                <li>
+                    <p><strong class="recommendation-priority medium">[Medium Priority] Conduct Subdomain Audit and Secure Exposed Services:</strong></p>
+                    <ul>
+                        <li>Inventory all identified subdomains and determine their purpose and ownership.</li>
+                        <li>Decommission any unnecessary or unmaintained subdomains.</li>
+                        <li>Ensure consistent security configurations (HTTPS, security headers, authentication) across all active subdomains.</li>
+                        <li>Pay special attention to subdomains like <code>admin</code>, <code>cpanel</code>, <code>dev</code>, <code>gitlab</code>, <code>login</code>, <code>remote</code>, <code>staging</code>, <code>test</code>, <code>vpn</code>. Apply strong authentication, access controls, and regular patching. Consider restricting access to these via IP whitelisting or VPN where appropriate.</li>
+                    </ul>
+                </li>
+                <li>
+                    <p><strong class="recommendation-priority medium">[Medium Priority] Minimize Information Disclosure:</strong></p>
+                    <ul>
+                        <li>Configure the web server (IIS) to remove or obfuscate the <code>Server</code>, <code>X-AspNet-Version</code>, and <code>X-Powered-By</code> headers from HTTP responses. This reduces the information available to attackers for targeted exploits.</li>
+                    </ul>
+                </li>
+                <li>
+                    <p><strong class="recommendation-priority medium">[Medium Priority] Secure Session Cookies:</strong></p>
+                    <ul>
+                        <li>Add the <code>Secure</code> flag to the <code>ASP.NET_SessionId</code> cookie (and all other session cookies) to ensure they are only transmitted over HTTPS. This requires the entire site to be served over HTTPS.</li>
+                        <li>Evaluate if <code>SameSite=Strict</code> is appropriate for certain cookies for enhanced CSRF protection, though <code>SameSite=Lax</code> is a good default.</li>
+                    </ul>
+                </li>
+                <li>
+                    <p><strong class="recommendation-priority medium">[Medium Priority] Maintain Patch Management:</strong></p>
+                    <ul>
+                        <li>Ensure that Microsoft IIS 10.0 and ASP.NET (specifically version 4.0.30319 and the underlying .NET Framework) are kept up-to-date with the latest security patches. Regularly scan for known vulnerabilities associated with these technologies.</li>
+                    </ul>
+                </li>
+                <li>
+                    <p><strong class="recommendation-priority low">[Low Priority] Investigate WHOIS Lookup Anomaly:</strong></p>
+                    <ul>
+                        <li>Determine the cause of the WHOIS lookup failure to ensure it's not indicative of a broader DNS resolution issue or a problem with the domain's registration status visibility.</li>
+                    </ul>
+                </li>
+                <li>
+                    <p><strong class="recommendation-priority low">[Ongoing] Perform Regular Security Testing:</strong></p>
+                    <ul>
+                        <li>Conduct regular penetration testing and vulnerability scanning, especially focusing on web applications, identified subdomains, and authentication mechanisms.</li>
+                        <li>Implement a continuous monitoring strategy for new subdomains and changes in existing services.</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <div id="attack_surface">
+            <h2>6. Attack Surface Evaluation</h2>
+            <p>The reconnaissance data provides insights into the potential attack surface of <code>hcmute.edu.vn</code>:</p>
+            <ul>
+                <li><strong>Web Applications:</strong> The primary domain and numerous subdomains host web applications. The lack of key security headers (HSTS, CSP, XFO) makes these applications prime targets for XSS, clickjacking, and MITM (SSL stripping) attacks. The identified ASP.NET technology stack might have specific vulnerabilities if not properly patched and configured.</li>
+                <li><strong>Email Infrastructure:</strong> With Google Workspace in use (DKIM present), the main concern is the apparent lack of SPF and DMARC records. This exposes the domain to email spoofing and phishing, which is particularly dangerous for an educational institution with many users.</li>
+                <li><strong>Subdomain Proliferation:</strong> The 52 identified subdomains significantly expand the attack surface. Each subdomain could represent a distinct application, server, or service with its own set of potential vulnerabilities.
+                    <ul>
+                        <li>Services like <code>admin.*</code>, <code>auth.*</code>, <code>cpanel.*</code>, <code>login.*</code> are high-value targets for credential theft or unauthorized access.</li>
+                        <li><code>dev.*</code>, <code>staging.*</code>, <code>test.*</code> environments may have weaker security controls, debug features enabled, or contain sensitive data, making them attractive targets.</li>
+                        <li><code>gitlab.*</code> could expose source code, CI/CD pipelines, or internal developer credentials if not properly secured.</li>
+                        <li><code>vpn.*</code>, <code>remote.*</code> suggest remote access points that need robust security.</li>
+                    </ul>
+                </li>
+                <li><strong>Information Disclosure:</strong> Server version information (IIS, ASP.NET) can help attackers tailor their exploits.</li>
+                <li><strong>Entry Points for Further Testing:</strong>
+                    <ul>
+                        <li>Web application testing (OWASP Top 10) for the main site and high-risk subdomains.</li>
+                        <li>Authentication mechanism testing on <code>login</code>, <code>auth</code>, <code>portal</code> subdomains.</li>
+                        <li>Configuration review for <code>cpanel</code>, <code>gitlab</code>, <code>vpn</code>, <code>remote</code>.</li>
+                        <li>Subdomain takeover checks, especially for less critical or potentially forgotten subdomains.</li>
+                    </ul>
+                </li>
+                <li><strong>Social Engineering Potential:</strong> The lack of robust email security (SPF/DMARC) makes phishing campaigns targeting students, faculty, and staff more likely to succeed.</li>
+                <li><strong>Security Posture vs. Industry Standards:</strong> The current configuration regarding HTTP security headers and email authentication (SPF/DMARC) falls short of common industry best practices. Educational institutions are frequent targets, and improving these areas is crucial.</li>
+            </ul>
+            <p>Addressing the identified vulnerabilities, particularly implementing strong HTTP security headers and comprehensive email authentication, along with a thorough audit and securing of all subdomains, will significantly reduce the attack surface and improve the overall security posture of <code>hcmute.edu.vn</code>.</p>
+        </div>
+
+    </div>
+    <script>
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+        for (i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+```
