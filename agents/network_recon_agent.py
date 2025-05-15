@@ -39,9 +39,8 @@ class NetworkReconAgent(autogen.AssistantAgent):
         # Update the llm_config with the tools schemas
         updated_llm_config = llm_config.copy() if llm_config else {}
         updated_llm_config["tools"] = tools_schemas
-        
-        # Define the system message as per requirements
-        system_message = """You are an AI assistant for network reconnaissance, specifically port scanning. Your primary tool is scan_ports. Generate a tool_call for scan_ports, providing the 'target' (IP address or hostname) and optionally a list of 'ports'. If no ports are specified, the tool will scan common ports. After the scan is complete, summarize the open ports found and then state TERMINATE. If the scan fails, note it and TERMINATE."""
+          # Define the system message as per requirements
+        system_message = """You are an AI assistant for network reconnaissance, specifically port scanning. Your primary tool is scan_ports. Make one tool call for scan_ports, providing the 'target' (IP address or hostname) and optionally a list of 'ports'. If no ports are specified, the tool will scan common ports. After the scan is complete, summarize the open ports found and then state TERMINATE. If the scan fails, note it and TERMINATE."""
         
         # Call the parent class constructor with the required parameters
         super().__init__(

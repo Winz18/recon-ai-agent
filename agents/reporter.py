@@ -55,12 +55,12 @@ class ReconReporter:
             
         Returns:
             Báo cáo dạng chuỗi theo định dạng được chỉ định
-        """
-        # Tạo user proxy đặc biệt để yêu cầu báo cáo
+        """        # Tạo user proxy đặc biệt để yêu cầu báo cáo
         user_proxy = autogen.UserProxyAgent(
             name="Report_Requester",
             human_input_mode="NEVER",
             max_consecutive_auto_reply=0,
+            code_execution_config={"use_docker": False},  # Disable Docker usage
             llm_config=False,
         )
         
@@ -91,15 +91,21 @@ class ReconReporter:
         
         Make sure to create a professional, well-structured report that highlights
         important security findings. Use {output_format} formatting appropriately."""
-        
-        # Gửi prompt đến reporter
+          # Gửi prompt đến reporter
         chat_result = user_proxy.initiate_chat(
             self.agent,
             message=prompt
         )
         
         # Lấy báo cáo từ tin nhắn cuối cùng
-        report = self.agent.last_message()["content"]
+        if hasattr(self.agent, 'messages') and self.agent.messages:
+            report = self.agent.messages[-1]["content"]
+        else:
+            # Fallback for older versions or different APIs
+            try:
+                report = self.agent.last_message()["content"]
+            except (AttributeError, TypeError):
+                report = "Failed to retrieve report."
         
         return report
         
@@ -113,12 +119,12 @@ class ReconReporter:
             
         Returns:
             Chuỗi tóm tắt các phát hiện chính
-        """
-        # Tạo user proxy đặc biệt để yêu cầu tóm tắt
+        """        # Tạo user proxy đặc biệt để yêu cầu tóm tắt
         user_proxy = autogen.UserProxyAgent(
             name="Summary_Requester",
             human_input_mode="NEVER",
             max_consecutive_auto_reply=0,
+            code_execution_config={"use_docker": False},  # Disable Docker usage
             llm_config=False,
         )
         
@@ -134,15 +140,21 @@ class ReconReporter:
         Focus only on the most important security-relevant facts.
         Your summary should be concise (maximum {max_length} characters) but include critical findings
         and potential security implications. Prioritize actionable security insights."""
-        
-        # Gửi prompt đến reporter
+          # Gửi prompt đến reporter
         chat_result = user_proxy.initiate_chat(
             self.agent,
             message=prompt
         )
         
         # Lấy tóm tắt từ tin nhắn cuối cùng
-        summary = self.agent.last_message()["content"]
+        if hasattr(self.agent, 'messages') and self.agent.messages:
+            summary = self.agent.messages[-1]["content"]
+        else:
+            # Fallback for older versions or different APIs
+            try:
+                summary = self.agent.last_message()["content"]
+            except (AttributeError, TypeError):
+                summary = "Failed to retrieve summary."
         
         # Đảm bảo không vượt quá độ dài tối đa
         return summary[:max_length] if len(summary) > max_length else summary

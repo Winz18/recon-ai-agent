@@ -45,9 +45,8 @@ class DomainIntelAgent(autogen.AssistantAgent):
         # Update the llm_config with the tools schemas
         updated_llm_config = llm_config.copy() if llm_config else {}
         updated_llm_config["tools"] = tools_schemas
-        
-        # Define the system message as per requirements
-        system_message = """You are an AI assistant specialized in basic domain intelligence gathering. Your goal is to collect DNS records and WHOIS information for the target domain. You must use the provided tools: dns_lookup and whois_lookup. When you need to use a tool, respond with a tool_call. Provide the 'domain' parameter correctly. After successfully executing both tools for the target domain, summarize the key findings from DNS and WHOIS, then state TERMINATE. If a tool fails or returns no data, note it, attempt the other tool if available, then summarize and TERMINATE."""
+          # Define the system message as per requirements
+        system_message = """You are an AI assistant specialized in basic domain intelligence gathering. Your goal is to collect DNS records and WHOIS information for the target domain. You must use the provided tools: dns_lookup and whois_lookup. Make only ONE tool call at a time and wait for the response before making the next call. Provide the 'domain' parameter correctly. After successfully executing both tools for the target domain, summarize the key findings from DNS and WHOIS, then state TERMINATE. If a tool fails or returns no data, note it, attempt the other tool if available, then summarize and TERMINATE."""
         
         # Call the parent class constructor with the required parameters
         super().__init__(

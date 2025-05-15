@@ -52,12 +52,12 @@ class ReconPlanner:
             
         Returns:
             Dictionary chứa kế hoạch với các bước thực hiện
-        """
-        # Tạo user proxy đặc biệt để lấy kế hoạch
+        """        # Tạo user proxy đặc biệt để lấy kế hoạch
         user_proxy = autogen.UserProxyAgent(
             name="Plan_Requester",
             human_input_mode="NEVER",
             max_consecutive_auto_reply=0,
+            code_execution_config={"use_docker": False},  # Disable Docker usage
             llm_config=False,
         )
         
@@ -74,16 +74,21 @@ class ReconPlanner:
         5. Success criteria for each step
         
         Format your plan as a structured JSON object with numbered steps."""
-        
-        # Gửi prompt đến planner
+          # Gửi prompt đến planner
         chat_result = user_proxy.initiate_chat(
             self.agent,
             message=prompt
         )
         
-        # Parse kết quả trong nội dung của tin nhắn cuối cùng
-        # Lý tưởng nhất là parse JSON, nhưng có thể cần xử lý thêm
-        plan_text = self.agent.last_message()["content"]
+        # Lấy kế hoạch từ tin nhắn cuối cùng
+        if hasattr(self.agent, 'messages') and self.agent.messages:
+            plan_text = self.agent.messages[-1]["content"]
+        else:
+            # Fallback for older versions or different APIs
+            try:
+                plan_text = self.agent.last_message()["content"]
+            except (AttributeError, TypeError):
+                plan_text = "Failed to retrieve plan. Please try again with a valid domain."
         
         # Trả về kế hoạch dưới dạng dictionary
         return {

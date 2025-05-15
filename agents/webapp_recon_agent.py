@@ -115,9 +115,12 @@ class WebAppReconAgent(autogen.AssistantAgent):
         # Update the llm_config with the tools schemas
         updated_llm_config = llm_config.copy() if llm_config else {}
         updated_llm_config["tools"] = tools_schemas
-        
-        # Define the system message as per requirements
-        system_message = """You are an AI assistant for web application reconnaissance. Your tasks are to gather HTTP headers, identify web technologies, find subdomains relevant to web applications, and capture website screenshots for a given target URL or domain. You must use the tools: get_http_headers, extract_security_headers, search_subdomains, detect_technologies, and capture_website_screenshot. Generate a tool_call for each tool. Ensure correct parameters ('url' for headers/tech/screenshot, 'domain' for subdomains). After executing all relevant tools, summarize the findings and then state TERMINATE. If a tool fails, note it and proceed."""
+          # Define the system message as per requirements
+        system_message = """You are an AI assistant for web application reconnaissance. Your tasks are to gather HTTP headers, identify web technologies, find subdomains relevant to web applications, and capture website screenshots for a given target URL or domain. You must use the tools: get_http_headers, extract_security_headers, search_subdomains, detect_technologies, and capture_website_screenshot. 
+
+IMPORTANT: Make only ONE tool call at a time, and wait for the response before making the next call. Do not make multiple tool calls in a single message.
+
+Ensure correct parameters ('url' for headers/tech/screenshot, 'domain' for subdomains). After executing all relevant tools one by one, summarize the findings and then state TERMINATE. If a tool fails, note it and proceed."""
         
         # Call the parent class constructor with the required parameters
         super().__init__(
