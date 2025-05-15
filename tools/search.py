@@ -4,8 +4,14 @@ import re
 import concurrent.futures
 from typing import Annotated, Dict, List, Set, Union, Any
 from .tool_decorator import recon_tool
+from requests.exceptions import RequestException
+from dns.exception import DNSException
 
-@recon_tool
+@recon_tool(
+    max_retries=2,
+    retry_delay_seconds=1,
+    retryable_exceptions=(RequestException, DNSException)
+)
 def search_subdomains(
     domain: Annotated[str, "The domain to find subdomains for"],
     use_apis: Annotated[bool, "Whether to use online services"] = True,

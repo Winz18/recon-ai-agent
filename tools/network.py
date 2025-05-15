@@ -1,10 +1,16 @@
 import socket
-import whois
 from typing import Annotated, Dict, List, Union, Any
 from .tool_decorator import recon_tool
+from dns.exception import DNSException
+from config.settings import CACHE_TTL_DNS, CACHE_TTL_WHOIS
 
 # --- DNS Lookup Tool ---
-@recon_tool
+@recon_tool(
+    cache_ttl_seconds=CACHE_TTL_DNS,
+    max_retries=2,
+    retry_delay_seconds=1,
+    retryable_exceptions=(DNSException,)
+)
 def dns_lookup(
     domain: Annotated[str, "The domain name to lookup."],
     record_types: Annotated[List[str], "Specific record types to lookup"] = None,
@@ -36,7 +42,6 @@ def dns_lookup(
     
     try:
         import dns.resolver
-        from dns.exception import DNSException
 
         # Setup resolver
         resolver = dns.resolver.Resolver()
@@ -93,7 +98,12 @@ def dns_lookup(
     return {k: v for k, v in results.items() if v and not k.endswith('_error')}
 
 # --- WHOIS Lookup Tool ---
-@recon_tool
+@recon_tool(
+    cache_ttl_seconds=CACHE_TTL_WHOIS,
+    max_retries=1,
+    retry_delay_seconds=1,
+    retryable_exceptions=(socket.timeout,)
+)
 def whois_lookup(
     domain: Annotated[str, "The domain name to perform WHOIS lookup."],
     server: Annotated[str, "Custom WHOIS server to use"] = None,

@@ -3,8 +3,13 @@ import time
 from typing import Optional, Dict, Union, Annotated
 from pathlib import Path
 from .tool_decorator import recon_tool
+from requests.exceptions import RequestException
 
-@recon_tool
+@recon_tool(
+    max_retries=2,
+    retry_delay_seconds=2,
+    retryable_exceptions=(RequestException,)
+)
 def capture_website_screenshot(
     url: Annotated[str, "URL of the website to capture"],
     output_path: Annotated[str, "Directory path where to save the screenshot"], 

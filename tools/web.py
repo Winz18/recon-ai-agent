@@ -2,8 +2,14 @@ import requests
 from typing import Annotated, Dict, Optional
 from urllib.parse import urlparse
 from .tool_decorator import recon_tool
+from config.settings import CACHE_TTL_HTTP_HEADERS
 
-@recon_tool
+@recon_tool(
+    cache_ttl_seconds=CACHE_TTL_HTTP_HEADERS,
+    max_retries=2,
+    retry_delay_seconds=2,
+    retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.Timeout)
+)
 def get_http_headers(
     url: Annotated[str, "The URL to get HTTP headers from"],
     method: Annotated[str, "HTTP method to use (HEAD, GET)"] = "AUTO",

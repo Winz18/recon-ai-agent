@@ -66,3 +66,8 @@ def get_ag2_config_list(model_id: str = "gemini-2.5-pro-preview-03-25") -> list:
 logger.debug("Configuration loaded.")
 
 # --- Thêm các hằng số hoặc cấu hình khác nếu cần ---
+
+# --- Caching TTL settings (in seconds) ---
+CACHE_TTL_WHOIS = 24 * 60 * 60      # 24 hours
+CACHE_TTL_DNS = 2 * 60 * 60         # 2 hours
+CACHE_TTL_HTTP_HEADERS = 60 * 60    # 1 hour

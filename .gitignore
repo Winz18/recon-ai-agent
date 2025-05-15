@@ -2,22 +2,22 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
 *.egg-info/
-.project
-.pydevproject
-/.Python
-/build/
-/develop-eggs/
-/dist/
-/downloads/
-/eggs/
-/.eggs/
-/lib/
-/lib64/
-/parts/
-/sdist/
-/var/
-/wheels/
+.installed.cfg
 *.egg
 MANIFEST
 
@@ -27,14 +27,19 @@ MANIFEST
 env/
 venv/
 ENV/
-env.bak
-venv.bak
+env.bak/
+venv.bak/
 
-# IDEs
+# IDEs and editors
 .idea/
 .vscode/
 *.sublime-project
 *.sublime-workspace
+.project
+.pydevproject
+*.swp
+*.swo
+*~
 
 # OS generated files
 .DS_Store
@@ -45,17 +50,40 @@ venv.bak
 ehthumbs.db
 Thumbs.db
 
-# Config secrets
-*.json # Cẩn thận nếu chứa key, tốt nhất để key trong .env hoặc Secret Manager
-config/OAI_CONFIG_LIST # Nếu bạn dùng file này để chứa key
+# Config secrets and API keys
+*.json
+config/OAI_CONFIG_LIST
+*config*.json
+*secrets*.json
+*credentials*.json
+*api_key*
 
 # Notebooks checkpoints
-.ipynb_checkpoints
+.ipynb_checkpoints/
 
 # Logs
 logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Cache
-.cache
-.cache/42/cache.db
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.coverage.*
+
+# Database
+*.db
+*.sqlite3
+*.sqlite
+
+# Local files
+local_settings.py
+db.sqlite3
+db.sqlite3-journal

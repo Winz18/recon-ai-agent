@@ -4,7 +4,11 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List, Optional, Tuple, Union, Annotated
 from .tool_decorator import recon_tool
 
-@recon_tool
+@recon_tool(
+    max_retries=2,
+    retry_delay_seconds=1,
+    retryable_exceptions=(socket.timeout,)
+)
 def scan_ports(
     target: Annotated[str, "Target IP address or hostname to scan"],
     ports: Annotated[Optional[List[int]], "List of specific ports to scan. If None, scans top 100 common ports"] = None,
