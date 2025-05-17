@@ -10,65 +10,74 @@ def setup_logging(
     backup_count: int = 3
 ) -> logging.Logger:
     """
-    Cài đặt logging cho ứng dụng.
+    Set up logging for the application.
     
     Args:
-        log_level: Mức độ logging (INFO, DEBUG...)
-        log_file: Đường dẫn tới file log, None nếu chỉ log ra console
-        max_file_size: Kích thước tối đa của file log
-        backup_count: Số lượng file log backup giữ lại
+        log_level: Logging level (INFO, DEBUG...)
+        log_file: Path to log file, None if only logging to console
+        max_file_size: Maximum log file size
+        backup_count: Number of backup log files to keep
         
     Returns:
-        Logger đã cấu hình
+        Configured logger
     """
-    # Tạo formatter với định dạng chuẩn
+    # Create formatter with standard format
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     
-    # Cấu hình root logger
+    # Get the root logger
     root_logger = logging.getLogger()
+    
+    # Set the log level (this will be overridden by the CLI utility but is 
+    # needed for file logging)
     root_logger.setLevel(log_level)
     
-    # Xóa tất cả handlers cũ nếu có
-    if root_logger.handlers:
-        for handler in root_logger.handlers[:]:
-            root_logger.removeHandler(handler)
-    
-    # Thêm handler console
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-    console_handler.setLevel(log_level)
-    root_logger.addHandler(console_handler)
-    
-    # Thêm file handler nếu được chỉ định
+    # Add file handler if specified
     if log_file:
-        # Đảm bảo thư mục chứa file log tồn tại
+        # Ensure log directory exists
         log_dir = os.path.dirname(log_file)
         if log_dir and not os.path.exists(log_dir):
             os.makedirs(log_dir)
             
-        # Tạo rotating file handler
-        file_handler = RotatingFileHandler(
-            log_file,
-            maxBytes=max_file_size,
-            backupCount=backup_count
-        )
-        file_handler.setFormatter(formatter)
-        file_handler.setLevel(log_level)
-        root_logger.addHandler(file_handler)
+        # Check if a file handler already exists
+        has_file_handler = False
+        for handler in root_logger.handlers:
+            if isinstance(handler, RotatingFileHandler) and handler.baseFilename == os.path.abspath(log_file):
+                has_file_handler = True
+                break
+                
+        # Create rotating file handler if needed
+        if not has_file_handler:
+            file_handler = RotatingFileHandler(
+                log_file,
+                maxBytes=max_file_size,
+                backupCount=backup_count
+            )
+            file_handler.setFormatter(formatter)
+            file_handler.setLevel(log_level)
+            root_logger.addHandler(file_handler)
+    
+    # Note: We don't add a console handler here anymore
+    # The CLI utility will handle console output
+    
+    # Set lower log levels for noisy libraries
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("websockets").setLevel(logging.WARNING)
     
     return root_logger
 
 def get_logger(name: str) -> logging.Logger:
     """
-    Lấy logger cho module cụ thể.
+    Get a logger for a specific module.
     
     Args:
-        name: Tên của logger, thường là __name__
+        name: Logger name, typically __name__
         
     Returns:
-        Logger đã được cấu hình
+        Configured logger
     """
     return logging.getLogger(name)

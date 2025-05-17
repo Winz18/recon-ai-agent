@@ -16,6 +16,10 @@ termcolor>=3.1.0
 httpx>=0.28.0
 httpx-sse>=0.4.0
 
+# CLI Improvements
+rich>=13.5.0
+colorama>=0.4.6
+
 # SSL Analysis
 ssl>=1.16
 cryptography>=42.0.0
