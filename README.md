@@ -21,7 +21,7 @@ Recon AI-Agent is an advanced reconnaissance framework for security professional
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/recon-ai-agent.git
+   git clone https://github.com/Winz18/recon-ai-agent
    cd recon-ai-agent
    ```
 
