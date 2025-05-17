@@ -22,7 +22,12 @@ from tools import (
     scan_ports,
     search_google_dorks,
     detect_technologies,
-    capture_website_screenshot
+    capture_website_screenshot,
+    crawl_endpoints,
+    analyze_ssl_tls,
+    detect_waf,
+    check_cors_config,
+    detect_cms
 )
 
 # Import configuration
@@ -72,6 +77,11 @@ def run_standard_recon_workflow(
             "enable_osint": True,
             "enable_tech": True,
             "enable_screenshot": True,
+            "enable_crawler": True,
+            "enable_ssl_analysis": True,
+            "enable_waf_detection": True,
+            "enable_cors_checks": True,
+            "enable_cms_detection": True,
             
             # Default tool parameters
             "port_list": None,
@@ -87,6 +97,32 @@ def run_standard_recon_workflow(
             
             "dorks_limit": 10,
             
+            # Crawler parameters
+            "crawler_depth": 1,
+            "crawler_output_format": "json",
+            "crawler_wordlist": True,
+            "crawler_wayback": True,
+            "crawler_analyze_js": True,
+            "crawler_max_js": 10,
+            "crawler_timeout": 10,
+            
+            # SSL/TLS analysis parameters
+            "ssl_check_cert_info": True,
+            "ssl_check_protocols": True,
+            "ssl_check_ciphers": True,
+            "ssl_timeout": 10,
+            
+            # WAF detection parameters
+            "waf_test_payloads": True,
+            "waf_timeout": 10,
+            
+            # CORS check parameters
+            "cors_timeout": 10,
+            
+            # CMS detection parameters
+            "cms_deep_scan": False,
+            "cms_timeout": 10,
+            
             "workflow_type": "standard"
         }
     
@@ -99,12 +135,33 @@ def run_standard_recon_workflow(
         # Only scan common ports if not specified
         if not tool_config.get("port_list"):
             tool_config["port_list"] = [80, 443, 8080, 8443]
+        # Quick crawling - less depth, fewer JS files
+        tool_config["crawler_depth"] = min(tool_config.get("crawler_depth", 1), 1)
+        tool_config["crawler_max_js"] = min(tool_config.get("crawler_max_js", 10), 5)
+        tool_config["crawler_timeout"] = min(tool_config.get("crawler_timeout", 10), 5)
+        # Quick SSL/WAF/CORS/CMS checks
+        tool_config["ssl_check_ciphers"] = False
+        tool_config["waf_test_payloads"] = False
+        tool_config["cms_deep_scan"] = False
+            
     elif tool_config.get("workflow_type") == "deep":
         # Deep workflow - more ports, more subdomains, more thorough scans
         tool_config["port_timeout"] = max(tool_config.get("port_timeout", 1.0), 2.0)
         tool_config["max_subdomains"] = max(tool_config.get("max_subdomains", 100), 200)
         tool_config["dorks_limit"] = max(tool_config.get("dorks_limit", 10), 20)
         tool_config["port_threads"] = max(tool_config.get("port_threads", 10), 20)
+        # Deep crawling - more depth, more JS files, longer timeout
+        tool_config["crawler_depth"] = max(tool_config.get("crawler_depth", 1), 2)
+        tool_config["crawler_max_js"] = max(tool_config.get("crawler_max_js", 10), 20)
+        tool_config["crawler_timeout"] = max(tool_config.get("crawler_timeout", 10), 15)
+        # Thorough SSL/WAF/CORS/CMS checks
+        tool_config["ssl_check_ciphers"] = True
+        tool_config["waf_test_payloads"] = True
+        tool_config["ssl_timeout"] = 15
+        tool_config["waf_timeout"] = 15
+        tool_config["cors_timeout"] = 15
+        tool_config["cms_deep_scan"] = True
+        tool_config["cms_timeout"] = 15
     
     # Initialize configuration
     config_list = get_ag2_config_list(model_id=model_id)
@@ -123,10 +180,8 @@ def run_standard_recon_workflow(
         code_execution_config={"use_docker": False},  # Disable Docker usage
         llm_config=False
     )
-    
-    # Register only the enabled tools with the UserProxyAgent
+      # Register only the enabled tools with the UserProxyAgent
     function_map = {}
-    
     if tool_config.get("enable_dns", True):
         function_map["dns_lookup"] = dns_lookup
         
@@ -145,9 +200,9 @@ def run_standard_recon_workflow(
         )
         
     if tool_config.get("enable_ports", True):
-        function_map["scan_ports"] = lambda target: scan_ports(
+        function_map["scan_ports"] = lambda target, ports=None: scan_ports(
             target=target,
-            ports=tool_config.get("port_list"),
+            ports=ports if ports is not None else tool_config.get("port_list"),
             timeout=tool_config.get("port_timeout", 1.0),
             threads=tool_config.get("port_threads", 10),
             scan_type=tool_config.get("port_scan_type", "tcp")
@@ -156,7 +211,7 @@ def run_standard_recon_workflow(
     if tool_config.get("enable_osint", True):
         function_map["search_google_dorks"] = lambda domain: search_google_dorks(
             domain=domain,
-            limit=tool_config.get("dorks_limit", 10)
+            max_results=tool_config.get("dorks_limit", 10)
         )
         
     if tool_config.get("enable_tech", True):
@@ -164,6 +219,53 @@ def run_standard_recon_workflow(
         
     if tool_config.get("enable_screenshot", True):
         function_map["capture_website_screenshot"] = capture_website_screenshot
+        
+    # Add endpoint crawler to available functions
+    if tool_config.get("enable_crawler", True):
+        function_map["crawl_endpoints"] = lambda url: crawl_endpoints(
+            url=url,
+            depth=tool_config.get("crawler_depth", 1),
+            output_format=tool_config.get("crawler_output_format", "json"),
+            use_wordlist=tool_config.get("crawler_wordlist", True),
+            use_wayback=tool_config.get("crawler_wayback", True),
+            analyze_js=tool_config.get("crawler_analyze_js", True),
+            max_js_files=tool_config.get("crawler_max_js", 10),
+            timeout=tool_config.get("crawler_timeout", 10)
+        )
+    
+    # Add SSL/TLS analyzer to available functions
+    if tool_config.get("enable_ssl_analysis", True):
+        function_map["analyze_ssl_tls"] = lambda url: analyze_ssl_tls(
+            url=url,
+            timeout=tool_config.get("ssl_timeout", 10),
+            check_cert_info=tool_config.get("ssl_check_cert_info", True),
+            check_protocols=tool_config.get("ssl_check_protocols", True),
+            check_ciphers=tool_config.get("ssl_check_ciphers", True)
+        )
+    
+    # Add WAF detector to available functions
+    if tool_config.get("enable_waf_detection", True):
+        function_map["detect_waf"] = lambda url: detect_waf(
+            url=url,
+            timeout=tool_config.get("waf_timeout", 10),
+            user_agent=tool_config.get("user_agent"),
+            test_payloads=tool_config.get("waf_test_payloads", True)
+        )
+    
+    # Add CORS checker to available functions
+    if tool_config.get("enable_cors_checks", True):
+        function_map["check_cors_config"] = lambda url: check_cors_config(
+            url=url,
+            timeout=tool_config.get("cors_timeout", 10)
+        )
+    
+    # Add CMS detector to available functions
+    if tool_config.get("enable_cms_detection", True):
+        function_map["detect_cms"] = lambda url: detect_cms(
+            url=url,
+            deep_scan=tool_config.get("cms_deep_scan", False),
+            timeout=tool_config.get("cms_timeout", 10)
+        )
     
     # Register the functions
     tool_executor.register_function(function_map=function_map)
@@ -222,7 +324,12 @@ def run_standard_recon_workflow(
         tool_config.get("enable_headers", True),
         tool_config.get("enable_subdomains", True),
         tool_config.get("enable_tech", True),
-        tool_config.get("enable_screenshot", True)
+        tool_config.get("enable_screenshot", True),
+        tool_config.get("enable_crawler", True),
+        tool_config.get("enable_ssl_analysis", True),
+        tool_config.get("enable_waf_detection", True),
+        tool_config.get("enable_cors_checks", True),
+        tool_config.get("enable_cms_detection", True)
     ])
     
     if web_tools_enabled:
@@ -238,6 +345,16 @@ def run_standard_recon_workflow(
             web_tools.append("subdomains")
         if tool_config.get("enable_screenshot", True):
             web_tools.append("screenshot of the website")
+        if tool_config.get("enable_crawler", True):
+            web_tools.append("website endpoints")
+        if tool_config.get("enable_ssl_analysis", True):
+            web_tools.append("SSL/TLS security configuration")
+        if tool_config.get("enable_waf_detection", True):
+            web_tools.append("web application firewall (WAF) details")
+        if tool_config.get("enable_cors_checks", True):
+            web_tools.append("CORS configuration security")
+        if tool_config.get("enable_cms_detection", True):
+            web_tools.append("content management system (CMS) information")
             
         webapp_recon_prompt = f"Gather {', '.join(web_tools)} for the website: {target_domain}"
         webapp_recon_chat = tool_executor.initiate_chat(

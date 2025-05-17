@@ -102,7 +102,8 @@ class ReconReporter:
                         collected_data: Dict,
                         output_format: str = "markdown",
                         save_report: bool = True,
-                        save_raw_data: bool = True) -> Tuple[str, Optional[str]]:
+                        save_raw_data: bool = True,
+                        report_type: Optional[str] = None) -> Tuple[str, Optional[str]]:
         """
         Tạo báo cáo từ dữ liệu thu thập được.
         
@@ -112,6 +113,7 @@ class ReconReporter:
             output_format: Định dạng đầu ra ("markdown", "json", "html")
             save_report: Có lưu báo cáo hay không
             save_raw_data: Có lưu dữ liệu thô hay không
+            report_type: Loại báo cáo ("standard", "comprehensive", "targeted_web", etc.)
             
         Returns:
             Tuple chứa:
@@ -267,7 +269,11 @@ class ReconReporter:
             format_instructions = "Provide a plain text report with clear section breaks and consistent formatting."
         
         # Tạo prompt yêu cầu báo cáo
-        prompt = f"""Generate a security reconnaissance report for target domain: {target_domain}
+        report_type_info = ""
+        if report_type:
+            report_type_info = f" This is a {report_type} report."
+        
+        prompt = f"""Generate a security reconnaissance report for target domain: {target_domain}{report_type_info}
         
         The report should be in {output_format} format.
         
@@ -340,7 +346,12 @@ class ReconReporter:
             elif output_format.lower() == "json":
                 extension = ".json"
                 
-            report_filename = f"report_{target_domain.replace('.', '_')}_{timestamp}{extension}"
+            # Add report_type to filename if provided
+            report_name = f"report_{target_domain.replace('.', '_')}"
+            if report_type:
+                report_name += f"_{report_type}"
+            report_filename = f"{report_name}_{timestamp}{extension}"
+            
             report_path = os.path.join(report_dir, report_filename)
             
             with open(report_path, "w", encoding="utf-8") as f:

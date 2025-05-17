@@ -104,22 +104,38 @@ def test_google_dorking(domain="example.com"):
     
     # Chỉ dùng một số dork nhất định để kiểm thử
     dorks = [f"site:{domain}", f"site:{domain} filetype:pdf"]
-    results = search_google_dorks(domain, dorks=dorks, max_results=5)
     
-    if "error" not in results:
-        print("\nKết quả Google dorking:")
-        for dork, links in results.items():
-            print(f"\n== Dork: {dork} ==")
-            for i, item in enumerate(links[:3], 1):  # Chỉ hiển thị tối đa 3 kết quả
-                print(f"{i}. {item.get('link', 'N/A')}")
-    else:
-        print(f"Lỗi: {results['error']}")
+    try:
+        print("Thực hiện tìm kiếm với số lượng dork giới hạn...")
+        results = search_google_dorks(domain, dorks=dorks, max_results=5, respect_rate_limits=True)
+        
+        if "error" not in results:
+            print("\nKết quả Google dorking:")
+            found_results = False
+            
+            for dork, links in results.items():
+                if not dork.endswith('_error') and not dork.endswith('_skipped'):
+                    found_results = True
+                    print(f"\n== Dork: {dork} ==")
+                    for i, item in enumerate(links[:3], 1):  # Chỉ hiển thị tối đa 3 kết quả
+                        print(f"{i}. {item.get('link', 'N/A')}")
+            
+            if not found_results:
+                print("Không tìm thấy kết quả nào cho các dork đã thử.")
+        else:
+            print(f"Lỗi: {results['error']}")
+            print("Kiểm tra xem có bị giới hạn bởi Google không. Thử lại sau hoặc sử dụng ít dork hơn.")
+    except Exception as e:
+        print(f"Lỗi không mong đợi khi thực hiện Google dorking: {str(e)}")
         
     # Hiển thị các dork phổ biến
-    common_dorks = get_common_dorks(domain)
     print(f"\nCác Google dork phổ biến cho {domain}:")
-    for i, dork in enumerate(common_dorks[:5], 1):  # Chỉ hiển thị 5 dork đầu tiên
-        print(f"{i}. {dork}")
+    try:
+        common_dorks = get_common_dorks(domain)
+        for i, dork in enumerate(common_dorks[:5], 1):  # Chỉ hiển thị 5 dork đầu tiên
+            print(f"{i}. {dork}")
+    except Exception as e:
+        print(f"Lỗi khi lấy danh sách dork phổ biến: {str(e)}")
 
 def test_tech_detector(url="https://example.com"):
     """Kiểm thử công cụ phát hiện công nghệ web."""

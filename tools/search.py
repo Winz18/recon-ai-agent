@@ -17,17 +17,18 @@ def search_subdomains(
     use_apis: Annotated[bool, "Whether to use online services"] = True,
     custom_wordlist: Annotated[List[str], "Custom subdomain wordlist to try"] = None,
     max_threads: Annotated[int, "Maximum number of concurrent DNS lookups"] = 10,
-    timeout: Annotated[int, "DNS lookup timeout in seconds"] = 3
+    timeout: Annotated[int, "DNS lookup timeout in seconds"] = 3,
+    max_results: Annotated[int, "Maximum number of subdomains to return"] = None
 ) -> Union[List[str], Dict[str, Any]]:
     """
     Searches for subdomains of a given domain using passive techniques.
-    
-    Args:
+      Args:
         domain: The base domain to find subdomains for
         use_apis: Whether to use online services (can be slower but more comprehensive)
         custom_wordlist: Custom subdomain wordlist to try in addition to common ones
         max_threads: Maximum number of concurrent DNS lookups
         timeout: DNS lookup timeout in seconds
+        max_results: Maximum number of subdomains to return
         
     Returns:
         A list of discovered subdomains or an error dictionary
@@ -159,14 +160,18 @@ def search_subdomains(
     except Exception as e:
         # TXT records might not exist
         pass
-    
-    # Remove the main domain if it's in the list
+      # Remove the main domain if it's in the list
     if domain in discovered_domains:
         discovered_domains.remove(domain)
     
     result = sorted(list(discovered_domains))
     if not result:
         return {"message": f"No subdomains found for {domain} using available methods."}
+    
+    # Limit the number of results if max_results is specified
+    if max_results is not None and len(result) > max_results:
+        result = result[:max_results]
+        
     return result
 
 @recon_tool
