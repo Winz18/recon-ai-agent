@@ -85,6 +85,7 @@ docker-data/
 # -----------------------------------------------------------------------------
 # Google Cloud credentials
 credentials/
+gcloud/
 *.json
 !docker-compose.yml
 !package*.json

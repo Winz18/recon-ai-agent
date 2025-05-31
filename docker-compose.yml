@@ -1,24 +1,36 @@
-version: '3.8'
-
 services:
   recon-ai-agent:
     build: .
     container_name: recon-ai-agent
     restart: unless-stopped
     
-    # Environment variables
+    # Run as current user to avoid permission issues
+    user: "${UID:-1000}:${GID:-1000}"
+    
+    # Environment variables - use .env file if available
     environment:
       - GOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
       - GOOGLE_REGION=${GOOGLE_REGION:-us-central1}
       - TARGET_DOMAIN=${TARGET_DOMAIN:-google.com}
-      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials/service-account.json
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials/application_default_credentials.json
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - HOME=/tmp
+    
+    # Load environment from .env file if it exists
+    env_file:
+      - .env
     
     # Volumes for persistent data and credentials
     volumes:
       - ./reports:/app/reports
       - ./cache:/app/cache
-      - ./credentials:/app/credentials:ro  # Mount Google Cloud credentials
-      - /var/run/docker.sock:/var/run/docker.sock:ro  # For advanced scanning tools
+      # Mount Google Cloud credentials directory if it exists
+      - ./credentials:/app/credentials:ro
+      # Alternative mount for gcloud directory for ADC
+      - ./gcloud:/app/gcloud:ro
+      # Docker socket for advanced scanning tools (only if needed)
+      # - /var/run/docker.sock:/var/run/docker.sock:ro
     
     # Network configuration
     networks:
@@ -38,10 +50,22 @@ services:
     security_opt:
       - no-new-privileges:true
     
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
     # Default command (can be overridden)
     command: ["python", "main.py", "--help"]
+    
+    # Depends on Redis if using caching
+    depends_on:
+      - redis
 
-  # Optional: Redis for caching (if you want to enhance caching)
+  # Redis for caching
   redis:
     image: redis:7-alpine
     container_name: recon-redis
@@ -50,7 +74,15 @@ services:
       - recon-network
     volumes:
       - redis_data:/data
-    command: redis-server --appendonly yes
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    
+    # Health check for Redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 networks:
   recon-network:

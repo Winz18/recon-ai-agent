@@ -9,17 +9,43 @@ Recon AI-Agent is an advanced reconnaissance framework for security professional
 - **Extensive Tool Collection**: Includes tools for DNS analysis, WHOIS, port scanning, technology detection, HTTP header analysis, subdomain enumeration, and more
 - **Web Application Security Focus**: Detect CMS, analyze SSL/TLS configurations, identify WAFs, and check for CORS misconfigurations
 - **Flexible Output Formats**: Generate reports in Markdown, HTML, or JSON format
-- **🐳 Docker Support**: Fully containerized with cross-platform support
+- **🐳 Docker Support**: Fully containerized with cross-platform support and **fixed permission issues**
 - **📊 Multiple Deployment Options**: Run via Docker, Docker Compose, or traditional Python setup
+- **🔧 Automated Setup**: One-click setup scripts for easy configuration
 
 ## 📦 Quick Start with Docker (Recommended)
 
-The easiest way to get started is using Docker. No need to install Python dependencies or worry about system compatibility.
+The easiest way to get started is using Docker. We've **fixed all permission issues** and made setup completely automated.
 
 ### Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop) installed on your system
 - Google Cloud account with Vertex AI API enabled
+
+### 🚀 Automated Setup (New!)
+
+We've created automated setup scripts that handle everything for you:
+
+```bash
+# 1. Fix any permission issues (run once)
+chmod +x fix-permissions.sh
+./fix-permissions.sh
+
+# 2. Setup environment and validate configuration
+chmod +x docker-setup.sh
+./docker-setup.sh
+
+# 3. Edit .env file with your Google Cloud Project ID
+nano .env  # or vim .env
+
+# 4. Run your first scan!
+docker compose run --rm recon-ai-agent python main.py -d testphp.vulnweb.com
+```
+
+### Manual Setup (Alternative)
+
+<details>
+<summary>Click to expand manual setup instructions</summary>
 
 ### 1. Setup Environment
 
@@ -38,7 +64,7 @@ TARGET_DOMAIN=google.com
 mkdir credentials
 
 # Download your service account key from Google Cloud Console
-# Save it as credentials/service-account.json
+# Save it as credentials/application_default_credentials.json
 ```
 
 **Option B: Application Default Credentials**
@@ -46,7 +72,26 @@ mkdir credentials
 gcloud auth application-default login
 ```
 
-### 3. Build and Run
+</details>
+
+### 🐳 Running with Docker Compose (Recommended)
+
+**Fixed Docker Compose with proper permissions:**
+```bash
+# Basic scan (most common usage)
+docker compose run --rm recon-ai-agent python main.py -d example.com
+
+# Comprehensive scan with HTML output
+docker compose run --rm recon-ai-agent python main.py -d example.com -w comprehensive -o html
+
+# Start all services in background
+docker compose up -d
+
+# View logs
+docker compose logs -f recon-ai-agent
+```
+
+### 🎯 Alternative: Using Convenience Scripts
 
 **Linux/macOS:**
 ```bash
@@ -78,19 +123,19 @@ make scan-quick DOMAIN=example.com
 make scan-comprehensive DOMAIN=example.com OUTPUT=html
 ```
 
-**Using Docker Compose:**
-```bash
-# Build and run
-docker-compose run --rm recon-ai-agent python main.py -d example.com
-```
-
 ## 🔧 Installation Options
 
-### Option 1: Docker (Recommended)
+### Option 1: Docker Compose (Recommended)
 
-See the [Quick Start](#-quick-start-with-docker-recommended) section above.
+We've **completely fixed** the Docker Compose setup with the following improvements:
+- ✅ **Fixed permission issues** with mounted volumes
+- ✅ **Automated setup scripts** for easy configuration
+- ✅ **Health checks** for all services
+- ✅ **Proper user mapping** to avoid permission errors
+- ✅ **Enhanced Redis configuration** with memory limits
+- ✅ **Security improvements** and read-only credential mounts
 
-For detailed Docker setup and usage instructions, see **[DOCKER.md](DOCKER.md)**.
+For detailed Docker setup and usage instructions, see **[DOCKER.md](DOCKER.md)** and **[DOCKER_COMPOSE_FIXES.md](DOCKER_COMPOSE_FIXES.md)**.
 
 ### Option 2: Traditional Python Setup
 
@@ -135,16 +180,47 @@ For detailed Docker setup and usage instructions, see **[DOCKER.md](DOCKER.md)**
 
 </details>
 
+## 🛠️ Troubleshooting Docker Issues
+
+### Permission Denied Errors (Fixed!)
+
+If you encounter permission errors like:
+```
+[Errno 13] Permission denied: '/app/credentials/application_default_credentials.json'
+```
+
+**Solution:**
+```bash
+# Run our automated fix script
+./fix-permissions.sh
+```
+
+This script will:
+- ✅ Fix file permissions on all mounted directories
+- ✅ Set proper UID/GID mapping in your .env file
+- ✅ Ensure the container can access all necessary files
+
+### Other Common Issues
+
+| Issue | Solution | Script |
+|-------|----------|--------|
+| **Missing .env file** | Run `./docker-setup.sh` | Automated |
+| **Invalid credentials** | Check Google Cloud setup | Manual |
+| **Container won't start** | Check `docker compose logs` | Manual |
+| **Redis connection issues** | Run `docker compose ps` | Automated health checks |
+
+For complete troubleshooting guide, see **[DOCKER_COMPOSE_FIXES.md](DOCKER_COMPOSE_FIXES.md#troubleshooting)**.
+
 ## 🎯 Available Workflows
 
-| Workflow | Description | Use Case | Docker Example |
-|----------|-------------|----------|----------------|
-| **standard** | Balanced reconnaissance with most tools | General security assessment | `./docker-run.sh -d example.com` |
-| **quick** | Fast reconnaissance with limited scope | Initial discovery | `./docker-run.sh -d example.com -w quick` |
-| **deep** | Thorough reconnaissance with all tools | Complete security audit | `./docker-run.sh -d example.com -w deep` |
-| **targeted** | Focused on specific security aspects | Specialized testing | `./docker-run.sh -d example.com -w targeted` |
-| **stealth** | Passive techniques to minimize detection | Covert reconnaissance | `./docker-run.sh -d example.com -w stealth` |
-| **comprehensive** | All tools with parallel execution | Fast complete assessment | `./docker-run.sh -d example.com -w comprehensive` |
+| Workflow | Description | Use Case | Docker Compose Example |
+|----------|-------------|----------|------------------------|
+| **standard** | Balanced reconnaissance with most tools | General security assessment | `docker compose run --rm recon-ai-agent python main.py -d example.com` |
+| **quick** | Fast reconnaissance with limited scope | Initial discovery | `docker compose run --rm recon-ai-agent python main.py -d example.com -w quick` |
+| **deep** | Thorough reconnaissance with all tools | Complete security audit | `docker compose run --rm recon-ai-agent python main.py -d example.com -w deep` |
+| **targeted** | Focused on specific security aspects | Specialized testing | `docker compose run --rm recon-ai-agent python main.py -d example.com -w targeted` |
+| **stealth** | Passive techniques to minimize detection | Covert reconnaissance | `docker compose run --rm recon-ai-agent python main.py -d example.com -w stealth` |
+| **comprehensive** | All tools with parallel execution | Fast complete assessment | `docker compose run --rm recon-ai-agent python main.py -d example.com -w comprehensive` |
 
 ### Targeted Workflow Options
 
@@ -158,29 +234,44 @@ When using the `targeted` workflow, specify a target type:
 
 **Example:**
 ```bash
-./docker-run.sh -d example.com -w targeted --target-type ssl
+docker compose run --rm recon-ai-agent python main.py -d example.com -w targeted --target-type ssl
 ```
 
 ## 📊 Usage Examples
 
-### Docker Examples (Recommended)
+### Docker Compose Examples (Recommended)
 
 ```bash
 # Basic reconnaissance
-./docker-run.sh -d example.com
+docker compose run --rm recon-ai-agent python main.py -d example.com
 
-# Comprehensive scan with HTML output
-./docker-run.sh -d example.com -w comprehensive -o html -v 2
+# Comprehensive scan with HTML output and high verbosity
+docker compose run --rm recon-ai-agent python main.py -d example.com -w comprehensive -o html -v 2
 
-# Stealth reconnaissance with high verbosity
-./docker-run.sh -d example.com -w stealth -v 3
+# Stealth reconnaissance for sensitive targets
+docker compose run --rm recon-ai-agent python main.py -d example.com -w stealth -v 3
 
 # Targeted SSL/TLS analysis
-make scan-targeted-ssl DOMAIN=example.com
+docker compose run --rm recon-ai-agent python main.py -d example.com -w targeted --target-type ssl
+
+# Multiple scans in background
+docker compose up -d
+docker compose exec recon-ai-agent python main.py -d example1.com &
+docker compose exec recon-ai-agent python main.py -d example2.com &
+```
+
+### Alternative Docker Script Examples
+
+```bash
+# Using docker-run.sh
+./docker-run.sh -d example.com -w comprehensive -o html -v 2
+
+# Using Make
+make scan-comprehensive DOMAIN=example.com OUTPUT=html
 
 # Quick scan for multiple domains
 for domain in example1.com example2.com; do
-  ./docker-run.sh -d $domain -w quick -o json
+  docker compose run --rm recon-ai-agent python main.py -d $domain -w quick -o json
 done
 ```
 
@@ -241,17 +332,22 @@ make show-reports
 # View latest HTML report (if available)
 open reports/*.html  # macOS
 start reports/*.html # Windows
+
+# Using Docker Compose to serve reports
+docker compose run --rm -p 8000:8000 recon-ai-agent python -m http.server 8000 --directory reports
 ```
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `GOOGLE_PROJECT_ID` | Google Cloud Project ID | Yes | - |
-| `GOOGLE_REGION` | Google Cloud Region | No | us-central1 |
-| `TARGET_DOMAIN` | Default target domain | No | google.com |
+| Variable | Description | Required | Default | Set by Script |
+|----------|-------------|----------|---------|---------------|
+| `GOOGLE_PROJECT_ID` | Google Cloud Project ID | Yes | - | `docker-setup.sh` |
+| `GOOGLE_REGION` | Google Cloud Region | No | us-central1 | `docker-setup.sh` |
+| `TARGET_DOMAIN` | Default target domain | No | google.com | `docker-setup.sh` |
+| `UID` | User ID for Docker mapping | No | 1000 | `fix-permissions.sh` |
+| `GID` | Group ID for Docker mapping | No | 1000 | `fix-permissions.sh` |
 
 ### Tool Configuration
 
@@ -259,35 +355,38 @@ Most tools can be enabled/disabled via command line:
 
 ```bash
 # Disable specific tools
-python main.py -d example.com --disable-ports --disable-screenshot
+docker compose run --rm recon-ai-agent python main.py -d example.com --disable-ports --disable-screenshot
 
 # Enable specific tools only
-python main.py -d example.com --enable-dns --enable-whois --disable-all-others
+docker compose run --rm recon-ai-agent python main.py -d example.com --enable-dns --enable-whois
 
 # Configure port scanning
-python main.py -d example.com --ports "22,80,443,8080-8090" --port-timeout 5
+docker compose run --rm recon-ai-agent python main.py -d example.com --ports "22,80,443,8080-8090" --port-timeout 5
 ```
 
 ## 🧪 Development and Testing
 
-### Using Docker for Development
+### Using Docker Compose for Development
 
 ```bash
-# Build development image
-make dev-build
+# Start development environment
+docker compose up -d
 
-# Start development shell
-make dev-shell
+# Access development shell
+docker compose exec recon-ai-agent bash
 
 # Run tests in container
-make test
+docker compose run --rm recon-ai-agent python -m pytest tests/ -v
+
+# View all container logs
+docker compose logs -f
 ```
 
 ### Running Tests
 
 ```bash
-# Docker
-docker run --rm recon-ai-agent python -m pytest tests/ -v
+# Docker Compose (recommended)
+docker compose run --rm recon-ai-agent python -m pytest tests/ -v
 
 # Traditional
 python -m pytest tests/ -v
@@ -296,9 +395,11 @@ python -m pytest tests/ -v
 ## 📚 Documentation
 
 - **[DOCKER.md](DOCKER.md)** - Comprehensive Docker setup and usage guide
+- **[DOCKER_COMPOSE_FIXES.md](DOCKER_COMPOSE_FIXES.md)** - ⭐ **NEW**: Complete guide to Docker Compose fixes and troubleshooting
 - **[docs/architecture.md](docs/architecture.md)** - System architecture and design
 - **[docs/adding_tools.md](docs/adding_tools.md)** - Guide for adding new reconnaissance tools
 - **[docs/defining_workflows.md](docs/defining_workflows.md)** - Creating custom workflows
+- **[docs/docker-deployment.md](docs/docker-deployment.md)** - Advanced Docker deployment options
 
 ## 🚨 Security and Legal Considerations
 
@@ -342,3 +443,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **⭐ If you find this tool useful, please consider giving it a star on GitHub!**
+
+## 🆕 Recent Updates
+
+- ✅ **Fixed Docker Compose permission issues** - No more `Permission denied` errors!
+- ✅ **Added automated setup scripts** - One-click setup with `docker-setup.sh` and `fix-permissions.sh`
+- ✅ **Enhanced health monitoring** - All services now have proper health checks
+- ✅ **Improved security** - Better user mapping and read-only credential mounts
+- ✅ **Better resource management** - Redis memory limits and CPU/memory constraints
+- ✅ **Comprehensive troubleshooting guide** - See [DOCKER_COMPOSE_FIXES.md](DOCKER_COMPOSE_FIXES.md)
