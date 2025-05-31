@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  recon-ai-agent:
+    build: .
+    container_name: recon-ai-agent
+    restart: unless-stopped
+    
+    # Environment variables
+    environment:
+      - GOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
+      - GOOGLE_REGION=${GOOGLE_REGION:-us-central1}
+      - TARGET_DOMAIN=${TARGET_DOMAIN:-google.com}
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials/service-account.json
+    
+    # Volumes for persistent data and credentials
+    volumes:
+      - ./reports:/app/reports
+      - ./cache:/app/cache
+      - ./credentials:/app/credentials:ro  # Mount Google Cloud credentials
+      - /var/run/docker.sock:/var/run/docker.sock:ro  # For advanced scanning tools
+    
+    # Network configuration
+    networks:
+      - recon-network
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    
+    # Default command (can be overridden)
+    command: ["python", "main.py", "--help"]
+
+  # Optional: Redis for caching (if you want to enhance caching)
+  redis:
+    image: redis:7-alpine
+    container_name: recon-redis
+    restart: unless-stopped
+    networks:
+      - recon-network
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+networks:
+  recon-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+    driver: local 

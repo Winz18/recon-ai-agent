@@ -1,39 +1,39 @@
-# Hướng dẫn thêm công cụ mới vào AI Pentesting Assistant
+# Adding New Tools to Recon AI-Agent
 
-Tài liệu này mô tả cách thêm công cụ reconnaissance mới vào hệ thống AI Pentesting Assistant. Dự án được thiết kế theo kiến trúc mô-đun, cho phép dễ dàng mở rộng với các công cụ mới.
+This document describes how to add new reconnaissance tools to the Recon AI-Agent system. The project is designed with a modular architecture that allows easy extension with new tools.
 
-## Tổng quan
+## Overview
 
-Mỗi công cụ trong AI Pentesting Assistant là một hàm Python thực hiện một nhiệm vụ cụ thể trong quá trình reconnaissance, ví dụ như DNS lookup, port scanning, hay phát hiện công nghệ. Các công cụ này được tổ chức trong thư mục `tools/` và được đăng ký để có thể được gọi bởi các AI agent.
+Each tool in Recon AI-Agent is a Python function that performs a specific reconnaissance task, such as DNS lookup, port scanning, or technology detection. These tools are organized in the `tools/` directory and are registered to be callable by AI agents.
 
-## Bước 1: Tạo hàm công cụ mới
+## Step 1: Create a New Tool Function
 
-Tạo một file Python mới trong thư mục `tools/` hoặc thêm hàm vào file hiện có nếu phù hợp về mặt chức năng. Ví dụ, để tạo công cụ phân tích SSL/TLS:
+Create a new Python file in the `tools/` directory or add functions to an existing file if they're functionally related. For example, to create an SSL/TLS analysis tool:
 
 ```python
 # tools/ssl_analyzer.py
 import ssl
 import socket
 import datetime
-import OpenSSL
 from typing import Dict, Any, List, Optional
+import OpenSSL
 
 from .tool_decorator import recon_tool
 
 @recon_tool
 def analyze_ssl_certificate(domain: str, port: int = 443) -> Dict[str, Any]:
     """
-    Phân tích chứng chỉ SSL/TLS của một tên miền.
+    Analyze SSL/TLS certificate for a domain.
     
     Args:
-        domain: Tên miền cần phân tích
-        port: Cổng (mặc định là 443 cho HTTPS)
+        domain: Target domain to analyze
+        port: Port number (default 443 for HTTPS)
         
     Returns:
-        Dict chứa thông tin về chứng chỉ SSL
+        Dict containing SSL certificate information
     """
     try:
-        # Tạo SSL connection
+        # Create SSL connection
         context = ssl.create_default_context()
         conn = context.wrap_socket(
             socket.socket(socket.AF_INET),
@@ -41,10 +41,10 @@ def analyze_ssl_certificate(domain: str, port: int = 443) -> Dict[str, Any]:
         )
         conn.connect((domain, port))
         
-        # Lấy thông tin chứng chỉ
+        # Get certificate information
         cert = conn.getpeercert()
         
-        # Phân tích thông tin
+        # Analyze certificate data
         result = {
             "subject": dict(x[0] for x in cert["subject"]),
             "issuer": dict(x[0] for x in cert["issuer"]),
@@ -56,7 +56,7 @@ def analyze_ssl_certificate(domain: str, port: int = 443) -> Dict[str, Any]:
             "cipher": conn.cipher(),
         }
         
-        # Kiểm tra thời hạn hết hạn
+        # Check expiration
         expiry_date = datetime.datetime.strptime(cert["notAfter"], "%b %d %H:%M:%S %Y %Z")
         current_date = datetime.datetime.utcnow()
         remaining_days = (expiry_date - current_date).days
@@ -75,17 +75,17 @@ def analyze_ssl_certificate(domain: str, port: int = 443) -> Dict[str, Any]:
 @recon_tool
 def check_ssl_vulnerabilities(domain: str, port: int = 443) -> Dict[str, Any]:
     """
-    Kiểm tra các lỗ hổng SSL/TLS phổ biến như POODLE, Heartbleed, FREAK, etc.
+    Check for common SSL/TLS vulnerabilities like POODLE, Heartbleed, FREAK, etc.
     
     Args:
-        domain: Tên miền cần kiểm tra
-        port: Cổng (mặc định là 443)
+        domain: Target domain to check
+        port: Port number (default 443)
         
     Returns:
-        Dict chứa thông tin về các lỗ hổng bảo mật tiềm tàng
+        Dict containing information about potential security vulnerabilities
     """
-    # Triển khai kiểm tra lỗ hổng
-    # ...
+    # Implementation for vulnerability checks
+    # This is a simplified example - real implementation would be more complex
     
     return {
         "poodle_vulnerable": False,
@@ -102,34 +102,35 @@ def check_ssl_vulnerabilities(domain: str, port: int = 443) -> Dict[str, Any]:
     }
 ```
 
-### Quy ước Quan trọng
+### Important Conventions
 
-1. **Sử dụng type hints:** Luôn khai báo kiểu dữ liệu cho tham số và giá trị trả về
-2. **Cung cấp docstring:** Mô tả rõ ràng công cụ làm gì, tham số và kết quả trả về
-3. **Xử lý lỗi:** Luôn bắt ngoại lệ để tránh làm sập ứng dụng
-4. **Định dạng kết quả:** Trả về dict có cấu trúc nhất quán
+1. **Use type hints:** Always declare data types for parameters and return values
+2. **Provide docstrings:** Clearly describe what the tool does, parameters, and return values
+3. **Error handling:** Always catch exceptions to avoid crashing the application
+4. **Consistent results:** Return dictionaries with consistent structure
+5. **Docker compatibility:** Ensure tools work in containerized environment
 
-## Bước 2: Thêm Decorator recon_tool
+## Step 2: Add the recon_tool Decorator
 
-Mỗi công cụ phải được đánh dấu bằng decorator `@recon_tool`. Decorator này thêm các tính năng:
+Each tool must be marked with the `@recon_tool` decorator. This decorator adds features such as:
 
-- Ghi log mỗi khi công cụ được sử dụng
-- Đo thời gian thực thi
-- Lưu trữ kết quả cho báo cáo
-- Cung cấp khả năng gọi từ các AI Agent
+- Logging each time the tool is used
+- Measuring execution time
+- Storing results for reporting
+- Providing callable interface for AI Agents
 
 ```python
 from .tool_decorator import recon_tool
 
 @recon_tool
 def my_new_tool(param1, param2):
-    # Triển khai công cụ
+    # Tool implementation
     pass
 ```
 
-## Bước 3: Đăng ký công cụ trong __init__.py
+## Step 3: Register Tool in __init__.py
 
-Để công cụ mới có thể được nhập từ module `tools`, cần thêm nó vào file `tools/__init__.py`:
+To make the new tool importable from the `tools` module, add it to `tools/__init__.py`:
 
 ```python
 # tools/__init__.py
@@ -141,22 +142,32 @@ from .port_scanner import scan_ports
 from .google_dorking import search_google_dorks
 from .tech_detector import detect_technologies
 from .screenshot import capture_website_screenshot
-# Thêm import mới
+# Add new import
 from .ssl_analyzer import analyze_ssl_certificate, check_ssl_vulnerabilities
 ```
 
-## Bước 4: Thêm Dependency (nếu cần)
+## Step 4: Add Dependencies (if needed)
 
-Nếu công cụ mới yêu cầu các thư viện bên ngoài, thêm chúng vào `requirements.txt`:
+If the new tool requires external libraries, add them to `requirements.txt`:
 
 ```
-# Thêm vào cuối file requirements.txt
-pyOpenSSL==23.1.1
+# Add to requirements.txt
+pyOpenSSL>=23.1.1
 ```
 
-## Bước 5: Thêm Unit Test
+For Docker deployment, you may also need to update the `Dockerfile` if system packages are required:
 
-Tạo một file test mới trong thư mục `tests/` để kiểm tra công cụ:
+```dockerfile
+# Add to Dockerfile if system packages needed
+RUN apt-get update && apt-get install -y \
+    # existing packages... \
+    openssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+```
+
+## Step 5: Add Unit Tests
+
+Create a test file in the `tests/` directory to verify the tool works correctly:
 
 ```python
 # tests/test_tools_ssl_analyzer.py
@@ -168,7 +179,7 @@ class TestSSLAnalyzer(unittest.TestCase):
     
     @patch('tools.ssl_analyzer.ssl.create_default_context')
     def test_analyze_ssl_certificate(self, mock_context):
-        # Thiết lập mock
+        # Setup mock
         mock_conn = MagicMock()
         mock_context.return_value.wrap_socket.return_value = mock_conn
         mock_conn.getpeercert.return_value = {
@@ -182,10 +193,10 @@ class TestSSLAnalyzer(unittest.TestCase):
         mock_conn.version.return_value = "TLSv1.3"
         mock_conn.cipher.return_value = ("TLS_AES_256_GCM_SHA384", "TLSv1.3", 256)
         
-        # Chạy test
+        # Run test
         result = analyze_ssl_certificate("example.com")
         
-        # Kiểm tra kết quả
+        # Check results
         self.assertIn("subject", result)
         self.assertIn("issuer", result)
         self.assertIn("protocol_version", result)
@@ -194,58 +205,245 @@ class TestSSLAnalyzer(unittest.TestCase):
         result = check_ssl_vulnerabilities("example.com")
         self.assertIn("poodle_vulnerable", result)
         self.assertIn("heartbleed_vulnerable", result)
+
+    def test_error_handling(self):
+        # Test with invalid domain
+        result = analyze_ssl_certificate("invalid-domain-12345.com")
+        self.assertIn("error", result)
         
 if __name__ == "__main__":
     unittest.main()
 ```
 
-## Bước 6: Sử dụng trong Workflow
+## Step 6: Test in Docker Environment
 
-Cập nhật workflow để sử dụng công cụ mới:
+Always test new tools in the Docker environment:
+
+```bash
+# Build updated image
+make build
+
+# Test the new tool interactively
+make shell
+
+# Inside container, test the tool
+python -c "from tools import analyze_ssl_certificate; print(analyze_ssl_certificate('google.com'))"
+```
+
+## Step 7: Use in Workflows
+
+Update workflows to use the new tool:
 
 ```python
 # workflows/standard_recon_workflow.py
 
-# Thêm import
+# Add import
 from tools import analyze_ssl_certificate, check_ssl_vulnerabilities
 
-# Trong phần định nghĩa workflow, thêm logic để sử dụng công cụ mới
+# In workflow definition, add logic to use the new tool
 ssl_info = analyze_ssl_certificate(domain)
 ssl_vulns = check_ssl_vulnerabilities(domain)
 
-# Thêm dữ liệu vào kết quả
+# Add data to results
 results["ssl_analysis"] = {
     "certificate_info": ssl_info,
     "vulnerabilities": ssl_vulns
 }
 ```
 
-## Bước 7: Cập nhật Tài liệu
+## Step 8: Update Documentation
 
-Cập nhật file README.md để thêm thông tin về công cụ mới:
+Update the main README.md to include information about the new tool:
 
 ```markdown
-## Tính năng hiện có
+## 🛠️ Available Tools
 
-* **Thu thập thông tin DNS**: Tra cứu các bản ghi DNS
-* ... (các tính năng khác)
-* **Phân tích SSL/TLS**: Kiểm tra cấu hình và lỗ hổng SSL/TLS
+- **DNS Reconnaissance**: Analyze DNS records and discover subdomains
+- **WHOIS Lookup**: Gather domain registration information
+- ... (other existing tools)
+- **SSL/TLS Analysis**: Check certificate validity and security configuration
 ```
 
-## Các Loại Công Cụ Phổ biến
+## Common Tool Categories
 
-Dưới đây là các loại công cụ phổ biến trong recon:
+Here are common types of reconnaissance tools:
 
-1. **Network Tools**: Phân tích các thông tin mạng
-2. **Web Tools**: Phân tích ứng dụng web
-3. **OSINT Tools**: Thu thập thông tin từ nguồn mở
-4. **Infrastructure Tools**: Phân tích cơ sở hạ tầng
-5. **Content Tools**: Phân tích nội dung 
+### 1. Network Tools
+- DNS analysis and subdomain discovery
+- Port scanning and service detection
+- Network topology mapping
+- IP geolocation and ASN lookup
 
-## Thực hành tốt khi phát triển Tool mới
+### 2. Web Application Tools
+- HTTP header analysis
+- Technology stack detection
+- Security header evaluation
+- Content discovery and crawling
 
-1. **Giới hạn Rate**: Thêm tùy chọn `delay` cho các công cụ gọi API
-2. **Xử lý ngoại lệ**: Luôn bắt ngoại lệ và trả về thông tin lỗi có ý nghĩa
-3. **Tham số tùy chọn**: Sử dụng tham số tùy chọn có giá trị mặc định
-4. **Kiểm tra tính hợp lệ**: Kiểm tra các tham số đầu vào trước khi thực hiện
-5. **Dữ liệu có cấu trúc**: Trả về kết quả dưới dạng dict có cấu trúc rõ ràng và nhất quán
+### 3. OSINT Tools
+- Search engine intelligence
+- Social media reconnaissance
+- Public database searches
+- Domain and certificate transparency
+
+### 4. Infrastructure Tools
+- Cloud service detection
+- CDN identification
+- Load balancer analysis
+- SSL/TLS configuration assessment
+
+### 5. Security Tools
+- Vulnerability scanning
+- Configuration assessment
+- Security policy evaluation
+- Compliance checking
+
+## Best Practices for Tool Development
+
+### 1. Rate Limiting and Delays
+```python
+import time
+import random
+
+@recon_tool
+def api_based_tool(target, delay_range=(1, 3)):
+    """Tool that makes API calls with random delays."""
+    # Random delay to avoid rate limiting
+    time.sleep(random.uniform(*delay_range))
+    
+    # Tool implementation
+    pass
+```
+
+### 2. Error Handling and Logging
+```python
+import logging
+
+logger = logging.getLogger(__name__)
+
+@recon_tool
+def robust_tool(target):
+    """Tool with comprehensive error handling."""
+    try:
+        # Tool logic here
+        result = perform_reconnaissance(target)
+        logger.info(f"Successfully analyzed {target}")
+        return result
+    except ConnectionError as e:
+        logger.warning(f"Connection failed for {target}: {e}")
+        return {"error": "connection_failed", "details": str(e)}
+    except Exception as e:
+        logger.error(f"Unexpected error analyzing {target}: {e}")
+        return {"error": "unexpected_error", "details": str(e)}
+```
+
+### 3. Configuration and Customization
+```python
+@recon_tool
+def configurable_tool(target, timeout=10, retries=3, custom_headers=None):
+    """Tool with configurable parameters."""
+    headers = custom_headers or {"User-Agent": "Recon-AI-Agent/1.0"}
+    
+    for attempt in range(retries):
+        try:
+            # Tool implementation with timeout
+            result = make_request(target, timeout=timeout, headers=headers)
+            return result
+        except TimeoutError:
+            if attempt < retries - 1:
+                time.sleep(2 ** attempt)  # Exponential backoff
+                continue
+            return {"error": "timeout", "attempts": retries}
+```
+
+### 4. Docker-Aware Implementation
+```python
+import os
+import shutil
+
+@recon_tool
+def system_dependent_tool(target):
+    """Tool that checks for system dependencies."""
+    # Check if required system tool exists
+    if not shutil.which('nmap'):
+        return {"error": "nmap not found", "suggestion": "ensure nmap is installed in container"}
+    
+    # Check for required files
+    wordlist_path = "/app/wordlists/common.txt"
+    if not os.path.exists(wordlist_path):
+        return {"error": "wordlist not found", "path": wordlist_path}
+    
+    # Tool implementation
+    pass
+```
+
+### 5. Data Validation and Sanitization
+```python
+import re
+from urllib.parse import urlparse
+
+@recon_tool
+def validated_tool(target):
+    """Tool with input validation."""
+    # Validate domain format
+    domain_pattern = r'^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$'
+    if not re.match(domain_pattern, target):
+        return {"error": "invalid_domain_format", "target": target}
+    
+    # Sanitize input
+    target = target.lower().strip()
+    
+    # Tool implementation
+    pass
+```
+
+## Testing Your Tools
+
+### Unit Testing
+```bash
+# Run specific tool tests
+python -m pytest tests/test_tools_ssl_analyzer.py -v
+
+# Run all tool tests
+python -m pytest tests/ -k "test_tools" -v
+```
+
+### Integration Testing
+```bash
+# Test in Docker environment
+./docker-run.sh --build -d example.com -w standard
+
+# Test with Make
+make test
+```
+
+### Manual Testing
+```bash
+# Interactive testing
+make shell
+
+# Test individual tools
+python -c "
+from tools import analyze_ssl_certificate
+result = analyze_ssl_certificate('github.com')
+print(result)
+"
+```
+
+## Tool Performance Considerations
+
+1. **Async Operations**: For I/O bound tools, consider async implementations
+2. **Caching**: Implement caching for expensive operations
+3. **Resource Usage**: Monitor memory and CPU usage in containers
+4. **Timeout Management**: Always implement timeouts for network operations
+5. **Parallel Execution**: Design tools to work well in parallel workflows
+
+## Security Considerations
+
+1. **Input Validation**: Always validate and sanitize inputs
+2. **Output Sanitization**: Ensure outputs don't contain sensitive data
+3. **Network Security**: Be aware of network isolation in containers
+4. **Credential Management**: Never hardcode credentials in tools
+5. **Legal Compliance**: Ensure tools comply with terms of service and legal requirements
+
+Following these guidelines will help you create robust, reliable tools that integrate seamlessly with the Recon AI-Agent ecosystem and work effectively in both development and production Docker environments.

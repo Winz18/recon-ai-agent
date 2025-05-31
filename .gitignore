@@ -1,4 +1,9 @@
+# =============================================================================
+# Recon AI-Agent .gitignore
+# =============================================================================
+
 # Python
+# -----------------------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
@@ -16,21 +21,28 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
 
-# Virtual environment
+# Virtual Environments
+# -----------------------------------------------------------------------------
 .env
+.env.local
+.env.*.local
 .venv
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+pyvenv.cfg
 
-# IDEs and editors
+# IDEs and Editors
+# -----------------------------------------------------------------------------
 .idea/
 .vscode/
 *.sublime-project
@@ -40,8 +52,12 @@ venv.bak/
 *.swp
 *.swo
 *~
+.vim/
+.emacs.d/
+*.code-workspace
 
-# OS generated files
+# OS Generated Files
+# -----------------------------------------------------------------------------
 .DS_Store
 .DS_Store?
 ._*
@@ -49,27 +65,78 @@ venv.bak/
 .Trashes
 ehthumbs.db
 Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.directory
+*~
 
-# Config secrets and API keys
+# Docker
+# -----------------------------------------------------------------------------
+.dockerignore.backup
+docker-compose.override.yml
+docker-compose.*.yml
+!docker-compose.yml
+Dockerfile.backup
+.docker/
+docker-data/
+*.dockerignore.backup
+
+# Security & Credentials
+# -----------------------------------------------------------------------------
+# Google Cloud credentials
+credentials/
 *.json
+!docker-compose.yml
+!package*.json
 config/OAI_CONFIG_LIST
 *config*.json
 *secrets*.json
 *credentials*.json
 *api_key*
+*service-account*
+.gcp/
+.google/
+.boto
+.aws/
+*.pem
+*.key
+*.p12
+*.pfx
+*.cer
+*.crt
+!*.crt.example
 
-# Notebooks checkpoints
-.ipynb_checkpoints/
+# Environment Variables
+# -----------------------------------------------------------------------------
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.staging
+.env.*
+!.env.example
+!.env.template
 
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Reports & Output
+# -----------------------------------------------------------------------------
+reports/
+output/
+results/
+scans/
+screenshots/
+data/
+exports/
+*.report
+*.scan
 
-# Cache
+# Cache & Temporary Files
+# -----------------------------------------------------------------------------
 .cache/
+cache/
+.tmp/
+tmp/
+temp/
 .pytest_cache/
 .coverage
 htmlcov/
@@ -77,14 +144,157 @@ htmlcov/
 .nox/
 .hypothesis/
 .coverage.*
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Logs
+# -----------------------------------------------------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+.eslintcache
+.stylelintcache
 
 # Database
+# -----------------------------------------------------------------------------
 *.db
 *.sqlite3
 *.sqlite
-
-# Local files
-local_settings.py
+*.db-shm
+*.db-wal
 db.sqlite3
 db.sqlite3-journal
-reports/
+
+# Testing
+# -----------------------------------------------------------------------------
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.coverage.*
+nosetests.xml
+coverage/
+.nyc_output
+junit.xml
+test-results/
+test-reports/
+
+# Documentation
+# -----------------------------------------------------------------------------
+docs/_build/
+docs/build/
+site/
+.mkdocs/
+
+# Backup Files
+# -----------------------------------------------------------------------------
+*.bak
+*.backup
+*.old
+*.orig
+*.tmp
+*~
+.#*
+#*#
+
+# Platform Specific
+# -----------------------------------------------------------------------------
+# Windows
+*.exe
+*.msi
+*.msm
+*.msp
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon?
+
+# Linux
+.fuse_hidden*
+.nfs*
+
+# Project Specific
+# -----------------------------------------------------------------------------
+# Wordlists and dictionaries (can be large)
+wordlists/
+dictionaries/
+*.txt.gz
+*.txt.bz2
+
+# Raw scan data
+raw_data/
+*.pcap
+*.cap
+
+# Compiled binaries
+bin/
+tools/bin/
+
+# Configuration overrides
+config/local.py
+config/development.py
+config/production.py
+settings_local.py
+local_settings.py
+
+# Development artifacts
+.venv-dev/
+dev-data/
+playground/
+scratch/
+experiments/
+
+# CI/CD
+# -----------------------------------------------------------------------------
+.github/workflows/*.backup
+.gitlab-ci.local.yml
+.circleci/local.yml
+
+# Node.js (if any frontend components)
+# -----------------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Miscellaneous
+# -----------------------------------------------------------------------------
+*.pid
+*.seed
+*.pid.lock
+.lock-wscript
+.grunt
+.sass-cache
+.node_repl_history
+*.tgz
+.yarn-integrity
+.cache
+.parcel-cache
+
+# Custom exclusions (uncomment as needed)
+# -----------------------------------------------------------------------------
+# Custom tools or scripts you don't want to commit
+# custom_tools/
+# private_scripts/
+
+# Large files that should be stored elsewhere
+# *.zip
+# *.tar.gz
+# *.rar
+
+# Specific to this project - uncomment if needed
+# examples/output/
+# benchmarks/results/

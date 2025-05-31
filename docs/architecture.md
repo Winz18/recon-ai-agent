@@ -1,10 +1,19 @@
-# Kiến trúc của AI Pentesting Assistant
+# Recon AI-Agent Architecture
 
-Tài liệu này mô tả chi tiết kiến trúc của dự án AI Pentesting Assistant, một hệ thống sử dụng AutoGen Framework và Vertex AI để tự động hóa quá trình footprinting và reconnaissance trong kiểm thử bảo mật.
+This document provides a comprehensive overview of the Recon AI-Agent architecture, an advanced reconnaissance framework for security professionals that leverages AutoGen Framework and Google Vertex AI to automate the process of footprinting and reconnaissance in security testing.
 
-## Tổng quan Kiến trúc
+## Architecture Overview
 
 ```
+                                  +------------------+
+                                  |                  |
+                                  |   Docker Layer   |
+                                  |  (Containerized) |
+                                  |                  |
+                                  +--------+---------+
+                                           |
+                                           |
+                                           v
                                   +------------------+
                                   |                  |
                                   |   Main CLI App   |
@@ -47,103 +56,415 @@ Tài liệu này mô tả chi tiết kiến trúc của dự án AI Pentesting A
             +--------------+    +-------------------+    +--------------------+
 ```
 
-## Các Thành phần Chính
+## Docker Architecture
 
-### 1. Main CLI Application
+### Container Structure
+
+```
+Docker Host
+├── recon-ai-agent:latest (Image)
+│   ├── Base: python:3.12-slim
+│   ├── System Tools: curl, wget, nmap, openssl
+│   ├── Python Dependencies: AG2, Vertex AI, etc.
+│   ├── Playwright Browsers: Chromium
+│   └── Application Code
+│
+├── Volumes
+│   ├── ./reports -> /app/reports (Scan results)
+│   ├── ./cache -> /app/cache (Cached data)
+│   └── ./credentials -> /app/credentials (GCP credentials)
+│
+└── Network: recon-network (Isolated)
+```
+
+### Multi-Platform Support
+
+```
+┌─── Linux ────┐    ┌─── Windows ───┐    ┌─── macOS ────┐
+│              │    │               │    │              │
+│ docker-run.sh│    │docker-run.ps1 │    │docker-run.sh │
+│              │    │               │    │              │
+│ Makefile     │    │ PowerShell    │    │ Makefile     │
+│              │    │ Native        │    │              │
+└──────────────┘    └───────────────┘    └──────────────┘
+        │                   │                   │
+        └───────────────────┼───────────────────┘
+                            │
+                ┌───────────▼──────────┐
+                │                      │
+                │  Docker Engine       │
+                │  (Cross-platform)    │
+                │                      │
+                └──────────────────────┘
+```
+
+## Core Components
+
+### 1. Container Layer
+
+**Docker Components:**
+- **Dockerfile**: Defines container environment with all dependencies
+- **docker-compose.yml**: Orchestration for multi-container deployment
+- **Scripts**: docker-run.sh (Linux/macOS), docker-run.ps1 (Windows)
+- **Makefile**: Automation tools for development and deployment
+
+**Benefits:**
+- **Isolation**: Complete separation from host system
+- **Consistency**: Same environment across all platforms
+- **Portability**: Easy deployment on any system
+- **Security**: Container runs with non-root user
+
+### 2. Main CLI Application
 
 **File:** `main.py`
 
-Điểm vào chính của ứng dụng, cung cấp giao diện dòng lệnh cho người dùng để:
-- Cấu hình các tham số reconnaissance
-- Chọn workflow cần thực thi
-- Chạy các công cụ tách biệt
-- Xem và lưu trữ báo cáo
+The primary entry point of the application, providing a command-line interface for users to:
+- Configure reconnaissance parameters
+- Select workflow to execute
+- Run individual tools
+- View and save reports
 
-### 2. Configuration Module
+**Docker Integration:**
+- Supports environment variables from container
+- Integrates with volume mounts for persistent storage
+- Health checks for container monitoring
 
-**Thư mục:** `config/`
+### 3. Configuration Module
 
-Quản lý tất cả các cài đặt của ứng dụng:
-- Cấu hình kết nối đến Vertex AI và AutoGen
-- Cài đặt mặc định cho các công cụ
-- Quản lý biến môi trường
-- Đọc cấu hình từ file `.env`
+**Directory:** `config/`
 
-### 3. AI Agents (AutoGen Framework)
+Manages all application settings:
+- Connection configuration for Vertex AI and AutoGen
+- Default settings for tools
+- Environment variable management from container
+- Configuration file reading from `.env` files and Docker secrets
 
-**Thư mục:** `agents/`
+**Docker Features:**
+- Environment variable injection
+- Secret management via Docker secrets
+- Configuration file mounting
 
-Triển khai các agent thông minh được điều phối bởi AutoGen Framework:
+### 4. AI Agents (AutoGen Framework)
 
-- **ReconPlanner Agent:** Lập kế hoạch chiến lược Reconnaissance dựa trên đầu vào của người dùng
-- **DomainIntel Agent:** Chuyên về thu thập thông tin liên quan đến tên miền
-- **NetworkRecon Agent:** Thực hiện các tác vụ quét mạng và phân tích
-- **WebAppRecon Agent:** Phân tích các ứng dụng web và công nghệ
-- **OSINTGathering Agent:** Thu thập thông tin từ các nguồn mở
-- **Reporter Agent:** Tổng hợp dữ liệu và tạo báo cáo
+**Directory:** `agents/`
 
-### 4. Tools Module
+Implements intelligent agents orchestrated by the AutoGen Framework:
 
-**Thư mục:** `tools/`
+- **ReconPlanner Agent:** Plans reconnaissance strategy based on user input
+- **DomainIntel Agent:** Specializes in domain-related intelligence gathering
+- **NetworkRecon Agent:** Performs network scanning and analysis tasks
+- **WebAppRecon Agent:** Analyzes web applications and technologies
+- **OSINTGathering Agent:** Collects open-source intelligence
+- **Reporter Agent:** Aggregates data and generates reports
 
-Tập hợp các công cụ reconnaissance được sử dụng bởi các agent:
+**Container Benefits:**
+- Isolated execution environment
+- Consistent AI model access
+- Resource management and limits
 
-- **network.py:** Công cụ DNS lookup, WHOIS lookup
-- **web.py:** Phân tích HTTP headers, thông tin bảo mật
-- **port_scanner.py:** Quét cổng mở
-- **search.py:** Tìm kiếm subdomain
-- **google_dorking.py:** Thực hiện Google dorks
-- **tech_detector.py:** Phát hiện công nghệ web
-- **screenshot.py:** Chụp ảnh website
-- **tool_decorator.py:** Decorator để đánh dấu và theo dõi việc sử dụng công cụ
+### 5. Tools Module
 
-### 5. Workflows Module
+**Directory:** `tools/`
 
-**Thư mục:** `workflows/`
+Collection of reconnaissance tools used by agents:
 
-Định nghĩa các quy trình reconnaissance chuẩn:
+- **network.py:** DNS lookup, WHOIS lookup tools
+- **web.py:** HTTP header analysis, security information
+- **port_scanner.py:** Port scanning capabilities
+- **search.py:** Subdomain discovery
+- **google_dorking.py:** Google dorks execution
+- **tech_detector.py:** Web technology detection
+- **screenshot.py:** Website screenshot capture (with Playwright in container)
+- **tool_decorator.py:** Decorator for marking and tracking tool usage
 
-- **standard_recon_workflow.py:** Quy trình đầy đủ, bao gồm tất cả các bước
-- **minimal_workflow.py (sắp có):** Quy trình rút gọn, chỉ chạy các công cụ thiết yếu
-- **webapp_workflow.py (sắp có):** Tập trung vào ứng dụng web
-- **osint_workflow.py (sắp có):** Chỉ sử dụng các công cụ thu thập thông tin mà không tương tác với hệ thống mục tiêu
+**Docker Enhancements:**
+- Pre-installed system tools (nmap, openssl, curl)
+- Playwright browsers available in container
+- Network isolation for security scanning
 
-### 6. Reports & Utilities
+### 6. Workflows Module
 
-**Thư mục:** `reports/` và `utils/`
+**Directory:** `workflows/`
 
-- **reports/:** Lưu trữ báo cáo dưới dạng JSON và HTML
-- **utils/:** Các tiện ích hỗ trợ logging, định dạng dữ liệu, và tiện ích chung
+Defines standard reconnaissance processes:
 
-## Luồng Hoạt động
+- **standard_recon_workflow.py:** Complete process including all steps
+- **quick_workflow.py:** Fast process for initial assessment
+- **deep_workflow.py:** Detailed process with all tools
+- **stealth_workflow.py:** Covert process with passive techniques
+- **comprehensive_workflow.py:** Parallel execution for performance
+- **targeted_workflow.py:** Focus on specific security aspects
 
-1. Người dùng chạy `main.py` với các tham số cần thiết
-2. Hệ thống tải cấu hình và khởi tạo các thành phần
-3. Quy trình (workflow) được chọn sẽ được kích hoạt
-4. ReconPlanner Agent tạo kế hoạch thu thập thông tin
-5. Các Agent chuyên biệt được phân công nhiệm vụ
-6. Mỗi Agent sử dụng các công cụ phù hợp để thu thập thông tin
-7. Reporter Agent tổng hợp kết quả và tạo báo cáo
-8. Báo cáo được lưu trữ và hiển thị cho người dùng
+**Container Optimization:**
+- Parallel processing support
+- Resource-aware execution
+- Timeout management
 
-## Extensibility (Khả năng mở rộng)
+### 7. Reports & Storage
 
-Hệ thống được thiết kế để dễ dàng mở rộng:
+**Persistent Volumes:**
+- **./reports:** Store reports in Markdown, HTML, JSON formats
+- **./cache:** Cache reconnaissance data for reuse
+- **./credentials:** Mount point for Google Cloud credentials
 
-- **Thêm công cụ mới:** Thêm module mới vào thư mục `tools/` và đăng ký trong `__init__.py`
-- **Thêm Agent mới:** Triển khai Agent mới trong thư mục `agents/`
-- **Thêm Workflow mới:** Tạo quy trình mới trong thư mục `workflows/`
+**Container Features:**
+- Persistent storage across container restarts
+- Backup and restore capabilities
+- Log aggregation
 
-## Vertex AI Integration
+## Deployment Architectures
 
-Dự án sử dụng Google Cloud Vertex AI để cung cấp năng lực AI cho các Agent:
+### 1. Single Container Deployment
 
-- **Gemini Models:** Cung cấp khả năng xử lý ngôn ngữ tự nhiên và phân tích
-- **Caching:** Lưu trữ kết quả gọi API để tối ưu chi phí
+```
+Host System
+└── Docker Container (recon-ai-agent)
+    ├── Application Code
+    ├── Python Runtime
+    ├── System Tools
+    └── Mounted Volumes
+        ├── /app/reports (Host: ./reports)
+        ├── /app/cache (Host: ./cache)
+        └── /app/credentials (Host: ./credentials)
+```
 
-## Hạn chế và Thách thức
+### 2. Docker Compose Deployment
 
-- **Rate Limiting:** Nhiều nguồn API có giới hạn số lượng request
-- **False Positives:** Kết quả reconnaissance có thể chứa thông tin sai
-- **Performance:** Một số công cụ có thể mất nhiều thời gian để thực thi
-- **Phụ thuộc vào Internet:** Cần kết nối internet ổn định
+```
+Docker Compose Stack
+├── recon-ai-agent (Main application)
+│   ├── Environment variables
+│   ├── Volume mounts
+│   └── Network: recon-network
+│
+├── redis (Optional caching)
+│   ├── Persistent data
+│   └── Network: recon-network
+│
+└── Volumes
+    ├── recon_reports
+    ├── recon_cache
+    └── redis_data
+```
+
+### 3. Production Cluster Deployment
+
+```
+Container Orchestration (K8s/Swarm)
+├── Load Balancer
+├── Multiple recon-ai-agent instances
+├── Shared storage (NFS/EBS)
+├── Centralized logging
+├── Monitoring & metrics
+└── Auto-scaling based on workload
+```
+
+## Workflow Execution with Docker
+
+1. **Container Startup**
+   - Docker engine initializes container from image
+   - Mount volumes for persistent storage
+   - Load environment variables and secrets
+   - Initialize health checks
+
+2. **Application Initialization**
+   - Main CLI app starts in container
+   - Configuration module loads settings from container environment
+   - AI agents connect to Vertex AI
+
+3. **Workflow Execution**
+   - User selects workflow through CLI or scripts
+   - Container executes reconnaissance tasks
+   - Tools use pre-installed system utilities
+   - Results saved to mounted volumes
+
+4. **Report Generation**
+   - Data aggregation in container
+   - Report generation (Markdown/HTML/JSON)
+   - Output saved to persistent volumes
+   - Container cleanup (if --rm flag)
+
+## Security Architecture
+
+### Container Security
+
+```
+Security Layers
+├── Host Security
+│   ├── Docker daemon security
+│   ├── User namespace isolation
+│   └── Seccomp profiles
+│
+├── Container Security
+│   ├── Non-root user execution (appuser:1000)
+│   ├── Read-only root filesystem
+│   ├── No new privileges
+│   └── Resource limits (CPU/Memory)
+│
+├── Network Security
+│   ├── Isolated Docker networks
+│   ├── Firewall rules
+│   └── Encrypted communication (TLS)
+│
+└── Data Security
+    ├── Encrypted credentials storage
+    ├── Secure volume mounts
+    └── Audit logging
+```
+
+### Authentication Flow
+
+```
+Container -> Google Cloud
+├── Service Account Key (mounted volume)
+├── Application Default Credentials
+├── Vertex AI API authentication
+└── Encrypted API communication
+```
+
+## Performance & Scalability
+
+### Resource Management
+
+```
+Container Resources
+├── CPU Limits: 1-2 cores (configurable)
+├── Memory Limits: 2GB default (configurable)
+├── Storage: Persistent volumes
+└── Network: Isolated networks
+```
+
+### Scaling Strategies
+
+1. **Horizontal Scaling**: Multiple container instances
+2. **Vertical Scaling**: Increase container resources  
+3. **Parallel Processing**: Multiple workflows simultaneously
+4. **Caching**: Persistent data caching across runs
+
+## Monitoring & Observability
+
+### Container Metrics
+
+```
+Monitoring Stack
+├── Container Stats (CPU, Memory, Network)
+├── Application Logs (structured JSON)
+├── Health Checks (endpoint monitoring)
+├── Performance Metrics (scan duration, success rates)
+└── Error Tracking (failed scans, API errors)
+```
+
+### Logging Architecture
+
+```
+Log Flow
+Container Logs -> Docker Logging Driver -> Log Aggregation -> Analysis
+├── Application logs (/app/logs)
+├── System logs (container events)
+├── Audit logs (scan activities)
+└── Error logs (failures, exceptions)
+```
+
+## Extensibility with Docker
+
+### Adding New Tools
+
+1. **Update Dockerfile** to install system dependencies
+2. **Add Python packages** to requirements.txt
+3. **Rebuild container image**
+4. **Test in isolated environment**
+
+### Custom Workflows
+
+1. **Create workflow file** in workflows/
+2. **Test in development container**
+3. **Deploy via volume mount** or image rebuild
+4. **Update documentation**
+
+## Backup & Recovery
+
+### Data Protection
+
+```
+Backup Strategy
+├── Volume Backups (automated)
+│   ├── Reports archive
+│   ├── Cache snapshots
+│   └── Configuration backups
+│
+├── Image Backups
+│   ├── Tagged releases
+│   ├── Version control
+│   └── Registry storage
+│
+└── Disaster Recovery
+    ├── Container recreation
+    ├── Data restoration
+    └── Service continuity
+```
+
+## Migration & Updates
+
+### Zero-Downtime Updates
+
+```
+Update Process
+├── Pull new image
+├── Test in staging environment
+├── Rolling update deployment
+├── Health check validation
+└── Rollback capability
+```
+
+## Technology Stack
+
+### Core Technologies
+- **Python 3.12**: Core runtime environment
+- **AutoGen Framework**: AI agent orchestration
+- **Google Vertex AI**: AI model integration
+- **Playwright**: Browser automation and screenshots
+- **Docker**: Containerization platform
+
+### Security Tools
+- **nmap**: Network port scanning
+- **openssl**: SSL/TLS analysis
+- **curl/wget**: HTTP analysis
+- **DNS utilities**: Domain intelligence
+
+### Development Tools
+- **pytest**: Testing framework
+- **black/flake8**: Code formatting and linting
+- **pre-commit**: Git hooks for quality control
+
+## Limitations and Challenges
+
+### Container-Specific Challenges
+
+- **Resource Overhead**: Container has overhead compared to native execution
+- **Network Complexity**: Container networking can be complex in enterprise environments
+- **Storage Performance**: Volume mounts may be slower than native filesystem
+- **Security Scanning**: Need to scan container images for vulnerabilities
+
+### Mitigations
+
+- **Performance Tuning**: Optimize container resources and caching
+- **Network Optimization**: Use host networking when necessary
+- **Storage Solutions**: High-performance storage backends
+- **Security Practices**: Regular image updates and vulnerability scanning
+
+## Future Enhancements
+
+### Planned Features
+- **Kubernetes Helm Charts**: For production orchestration
+- **Multi-architecture Images**: ARM64 support for Apple Silicon
+- **Plugin System**: External tool integration
+- **Web UI**: Browser-based interface
+- **API Server**: REST API for integration
+
+### Scalability Improvements
+- **Distributed Processing**: Multi-node execution
+- **Queue System**: Job queue management
+- **Load Balancing**: Intelligent workload distribution
+- **Auto-scaling**: Dynamic resource allocation
+
+This Docker-enhanced architecture provides a solid foundation for deployment, scaling, and maintenance of Recon AI-Agent in production environments with focus on security, performance, and operational excellence.
