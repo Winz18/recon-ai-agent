@@ -4,210 +4,210 @@
 
 # Core AI and Agent Framework
 # -----------------------------------------------------------------------------
-ag2>=0.9.1
-ag2[gemini]>=0.9.1
-google-cloud-aiplatform>=1.94.0
-google-genai>=1.16.0
-vertexai>=1.90.0
+ag2
+ag2[gemini]
+google-cloud-aiplatform
+google-genai
+vertexai
 
 # Google Cloud Services
 # -----------------------------------------------------------------------------
-google-cloud-core>=2.4.3
-google-cloud-storage>=2.19.0
-google-api-python-client>=2.170.0
-google-auth>=2.40.0
-google-auth-httplib2>=0.2.0
+google-cloud-core
+google-cloud-storage
+google-api-python-client
+google-auth
+google-auth-httplib2
 
 # Environment and Configuration
 # -----------------------------------------------------------------------------
-python-dotenv>=1.1.0
-pydantic>=2.11.0
-pydantic-settings>=2.6.0
+python-dotenv
+pydantic
+pydantic-settings
 
 # Web and HTTP Tools
 # -----------------------------------------------------------------------------
-requests>=2.32.3
-httpx>=0.28.1
-httpx-sse>=0.4.0
-aiohttp>=3.12.0
-requests-toolbelt>=1.0.0
-urllib3>=2.4.0
+requests
+httpx
+httpx-sse
+aiohttp
+requests-toolbelt
+urllib3
 
 # DNS and Network Analysis
 # -----------------------------------------------------------------------------
-dnspython>=2.7.0
-python-whois>=0.9.5
-nmap-python>=1.6.0
+dnspython
+python-whois
+nmap-python
 
 # Web Scraping and Parsing
 # -----------------------------------------------------------------------------
-beautifulsoup4>=4.13.4
-lxml>=5.4.0
-selectolax>=0.3.21
+beautifulsoup4
+lxml
+selectolax
 
 # Search and OSINT
 # -----------------------------------------------------------------------------
-googlesearch-python>=1.3.0
-shodan>=1.31.0
+googlesearch-python
+shodan
 
 # Browser Automation and Screenshots
 # -----------------------------------------------------------------------------
-playwright>=1.52.0
-selenium>=4.27.0
+playwright
+selenium
 
 # Security and Cryptography
 # -----------------------------------------------------------------------------
-cryptography>=45.0.0
-pyopenssl>=24.3.0
-certifi>=2025.4.26
+cryptography
+pyopenssl
+certifi
 
 # JSON and Data Processing
 # -----------------------------------------------------------------------------
-jsonschema>=4.24.0
-orjson>=3.10.0
-pydantic>=2.11.0
+jsonschema
+orjson
+pydantic
 
 # CLI and User Interface
 # -----------------------------------------------------------------------------
-rich>=14.0.0
-colorama>=0.4.6
-termcolor>=3.1.0
-click>=8.1.7
-typer>=0.15.0
+rich
+colorama
+termcolor
+click
+typer
 
 # Async and Concurrency
 # -----------------------------------------------------------------------------
-asyncio>=3.4.3
-aiofiles>=24.1.0
-asyncer>=0.0.8
+asyncio
+aiofiles
+asyncer
 
 # Database and Caching
 # -----------------------------------------------------------------------------
-redis>=5.2.0
-diskcache>=5.6.3
-sqlite3>=3.0.0  # Built-in but explicit for clarity
+redis
+diskcache
+sqlite3  # Built-in but explicit for clarity
 
 # Logging and Monitoring
 # -----------------------------------------------------------------------------
-structlog>=24.4.0
-loguru>=0.7.2
+structlog
+loguru
 
 # File Handling and Compression
 # -----------------------------------------------------------------------------
-python-magic>=0.4.27
-pillow>=11.2.0
+python-magic
+pillow
 
 # Date and Time
 # -----------------------------------------------------------------------------
-python-dateutil>=2.9.0
-pytz>=2024.2
+python-dateutil
+pytz
 
 # Text Processing and Regex
 # -----------------------------------------------------------------------------
-regex>=2024.11.6
-markdown-it-py>=3.0.0
+regex
+markdown-it-py
 
 # Testing Framework
 # -----------------------------------------------------------------------------
-pytest>=8.3.5
-pytest-asyncio>=1.0.0
-pytest-mock>=3.14.0
-pytest-cov>=6.0.0
-pytest-xdist>=3.6.0
+pytest
+pytest-asyncio
+pytest-mock
+pytest-cov
+pytest-xdist
 
 # Code Quality and Linting
 # -----------------------------------------------------------------------------
-black>=24.10.0
-flake8>=7.1.1
-isort>=5.13.2
-mypy>=1.13.0
+black
+flake8
+isort
+mypy
 
 # Docker and Containerization
 # -----------------------------------------------------------------------------
-docker>=7.1.0
+docker
 
 # Development and Debugging
 # -----------------------------------------------------------------------------
-ipython>=8.30.0
-pdb-clone>=3.4.0
+ipython
+pdb-clone
 
 # Performance and Profiling
 # -----------------------------------------------------------------------------
-memory-profiler>=0.61.0
-psutil>=6.1.0
+memory-profiler
+psutil
 
 # Networking and Protocols
 # -----------------------------------------------------------------------------
-scapy>=2.6.1
-netaddr>=1.3.0
-ipaddress>=1.0.23
+scapy
+netaddr
+ipaddress
 
 # File Format Support
 # -----------------------------------------------------------------------------
-openpyxl>=3.1.5
-pandas>=2.2.3
+openpyxl
+pandas
 
 # Security Testing Tools
 # -----------------------------------------------------------------------------
-paramiko>=3.5.0
-pycrypto>=2.6.1
+paramiko
+pycrypto
 
 # Vulnerability Detection
 # -----------------------------------------------------------------------------
-safety>=3.2.11
-bandit>=1.8.0
+safety
+bandit
 
 # Report Generation
 # -----------------------------------------------------------------------------
-jinja2>=3.1.4
-markdown>=3.7.0
-reportlab>=4.2.5
-weasyprint>=62.3
+jinja2
+markdown
+reportlab
+weasyprint
 
 # API and Web Framework (for future web UI)
 # -----------------------------------------------------------------------------
-fastapi>=0.115.6
-uvicorn>=0.32.1
-starlette>=0.41.3
+fastapi
+uvicorn
+starlette
 
 # Email and Notifications (optional)
 # -----------------------------------------------------------------------------
 # smtplib  # Built-in
-# email-validator>=2.2.0
+# email-validator
 
 # Machine Learning and AI (optional advanced features)
 # -----------------------------------------------------------------------------
-# scikit-learn>=1.5.2
-# numpy>=2.2.0
-# torch>=2.5.0
+# scikit-learn
+# numpy
+# torch
 
 # Geographic and Location (optional)
 # -----------------------------------------------------------------------------
-# geoip2>=4.8.0
-# geopy>=2.4.1
+# geoip2
+# geopy
 
 # Social Media APIs (optional OSINT)
 # -----------------------------------------------------------------------------
-# tweepy>=4.14.0
-# facebook-sdk>=3.1.0
+# tweepy
+# facebook-sdk
 
 # Cloud Provider SDKs (optional)
 # -----------------------------------------------------------------------------
-# boto3>=1.35.0  # AWS
-# azure-identity>=1.19.0  # Azure
-# google-cloud-compute>=1.21.0  # GCP
+# boto3  # AWS
+# azure-identity  # Azure
+# google-cloud-compute  # GCP
 
 # Specialized Security Tools
 # -----------------------------------------------------------------------------
-# python-nmap>=0.7.1
-# impacket>=0.12.0
-# pwntools>=4.13.1
+# python-nmap
+# impacket
+# pwntools
 
 # Development Only Dependencies
 # -----------------------------------------------------------------------------
-# pre-commit>=4.0.1
-# sphinx>=8.1.3
-# sphinx-rtd-theme>=3.0.2
+# pre-commit
+# sphinx
+# sphinx-rtd-theme
 
 # Note: Some packages are commented out as they are:
 # - Optional features
